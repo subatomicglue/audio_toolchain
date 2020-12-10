@@ -6,7 +6,7 @@ let fs = require( "fs" );
 let note = 0;
 let samp = "";
 let wavs = [];
-let pairs = [];
+let note_sample_pairs = []; // [ {note: 63,samp: "BD"}, {note: 64, samp: "SD"}, ... ]
 let VERBOSE=false;
 
 /////////////////////////////////////
@@ -46,7 +46,7 @@ for (let i = 2; i < (ARGC+2); i++) {
     i+=1;
     samp=ARGV[i]
     VERBOSE && console.log( `Parsing Args: Sample ${samp}` )
-    pairs.push( { note: note, samp: samp } );
+    note_sample_pairs.push( { note: note, samp: samp } );
     continue
   }
   wavs.push( ARGV[i] )
@@ -91,9 +91,16 @@ cutoff=19913
 
 `;
 
-for (let p of pairs) {
-  let files = fs.readdirSync(p.samp);
-  for (let file of files) {
+for (let p of note_sample_pairs) {
+  let note = p.note;
+  let sampleset_path = p.samp;
+  let sampleset_name = p.samp.replace( /\/$/, '' ).match( /([^/]+)$/ )[1];
+  console.log( `note: ${note} sampleset_path: "${sampleset_path}" sampleset_name: "${sampleset_name}"` );
+  let sample_files = fs.readdirSync( sampleset_path );
+  for (let f of sample_files) {
+    let vel = f.match( /\s([-.0-9]+)\.[^.]+$/ )[1];
+    console.log( ` - sample_path: "${f}" sample_velocity: ${vel}` );
+    
   }
 
   for (let duh of duhs) {
