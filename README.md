@@ -4,13 +4,13 @@
 Here are some command line tools I use for audio processing.
 
 Topics covered:
-- Sampler Auto Slicing (work in progress)
+- Sampler Auto Slicing
   - I use these scripts to auto convert a single audio file containing recordings of many samples (e.g. separate bass drum hits at different volumes), auto sliced by silence to separate sample files named with the velocity level, and then convert to sfz or sf2 sample sets
     - [slice.sh](slice.sh) auto slices audio files into separate .wav files
     - [rename.sh](rename.sh) rename audio files by their peak level.  useful for individual instrument samples.
     - [sfz.js](sfz.js) command line script to create a .sfz sampler instrument bank
 
-- Batch Conversion
+- Music Album Batch Conversion
   - I use these scripts to auto convert my albums of raw uncompressed .wav files to distributable mp3/ogg/flac with playlists.
   - every album has a folder with .wav for each track of the album, plus tags.ini plug update.pl
   - For each compressed output format, update.pl calls:
