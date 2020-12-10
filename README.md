@@ -44,6 +44,9 @@ We rely on some command line tools to do the work:
 - Batch Conversion:
   - flac, lame, metaflac, oggenc, ogginfo, sox, soxi, vorbiscomment, (scripting: perl)
 
+All of these are open source, cross platform tools, that are available in many platforms including MacOS, Windows, or Linux.
+
+## MacOS
 ```
 # needed for sampler/auto-slicer tools
 brew install node
@@ -58,3 +61,10 @@ brew install vorbis-tools  # for oggenc, vorbiscomment
 brew install sox
 
 ```
+
+## Windows
+*CONTRIBUTE!*  Feel free to contribute instructions for other platforms. :-)
+
+## Linux
+*CONTRIBUTE!*  Feel free to contribute instructions for other platforms. :-)
+
