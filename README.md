@@ -42,7 +42,7 @@ We rely on some command line tools to do the work:
 - Beat Slicing:
   - sox, polyphone, (scripting: bash, nodejs)
 - Batch Conversion:
-  - flac, lame, metaflac, oggenc, ogginfo, sox, soxi, vorbiscomment, (scripting: perl)
+  - flac, lame, metaflac, oggenc, ogginfo, sox, vorbiscomment, (scripting: perl)
 
 All of these are open source, cross platform tools, that are available in many platforms including MacOS, Windows, or Linux.
 
