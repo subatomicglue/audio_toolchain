@@ -9,7 +9,7 @@ VERBOSE=false
 # scan command line args:
 function usage
 {
-  echo "$0   auto slices audio files into separate .wav files"
+  echo "$0   auto slices a single audio file containing music instrument samples (separated by silence), into separate .wav files (timmed by silence)"
   echo "Usage: "
   echo "  $0 <in> <out>    (in/out files: ./SD.aif ./SD/SD.wav)"
   echo "  $0 --help        (this help)"
