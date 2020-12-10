@@ -1,0 +1,294 @@
+Release Name: 0.92
+=======================
+
+Include a fix by Marco Moreno of Cwd::abspath() not working on files (on
+some architectures).
+
+Release Name: 0.91
+=======================
+
+CDDB_File was removing whitespace on the boundary of continuation fields.
+
+get_user() calls ParseData->parse() to populate the userdata
+
+if $ENV{MP3TAG_TEST_WEAKEN}, will not have a workaround against broken weakrefs
+	(currently tests fail!)
+
+New %-escapes v L r q Q S m s C p o u (require MP3::Info module).
+
+New methods mpeg_version() mpeg_layer() mpeg_layer_roman() is_stereo()
+is_vbr() bitrate_kbps() frequency_Hz() frequency_kHz() size_bytes()
+total_secs() total_secs_int() total_mins() leftover_secs()
+leftover_msec() time_mm_ss() is_copyrighted() is_copyrighted_YN()
+frames_padded() frames_padded_YN() channel_mode_int() frames()
+frame_len() vbr_scale() (require MP3::Info module).
+
+The year() method of ID3v2 takes/returns timestamps in human-readable form;
+parse() recognizes the same formats for %y if option year_is_timestamp is TRUE
+(default).
+
+New option 'intact' to get_frame() of ID3v2.
+
+Support YEAR, ID3Y, ID3G in EXTD, EXTT* fields of CDDB_File.  Support also
+an alternative syntax "Recorded"/"Recorded on"/"Recorded in"/ with the format
+of the date recognized by ID3v2::year(), or just a date field without a prefix.
+The declarations of the former form are stripped from the returned comment.
+
+New fields artist_collection, title_track, comment_collection, comment_track
+in CDDB_File and corresponding accessor methods in MP3::Tag, and corresponding
+escapes aC, tT, cC, cT for interpolate().
+
+New configuration variables 'year_is_timestamp', 'comment_remove_date',
+'translate_*' (for different values of *).
+
+New handler module LastResort; currently it uses artist_collection() as comment
+if comment is not otherwise defined.
+
+New example scripts audio_rename and mod/Music_Translate_Fields.pm.
+
+The example script mp3info2 will use Music_Translate_Fields.pm (if found)
+to postprocess the resulting tag fields via translate_*() methods.
+
+Do not load Compress::Zlib unless when processing compressed data.
+
+Release Name: 0.9
+=======================
+
+Revision history for Perl modules MP3::Tag, MP3::Tag::ID3v1, MP3::Tag::ID3v2, MP3::Tag::File,
+             and for Perl program tk-tag
+
+Changes:
+
+* Bugfix for ID3v2.pm:
+  - Added support for reading ID3v2.2 and ID3v2.4 tags (alpha stage!!) and converting them to ID3v2.3
+  - Bugfix for unsynchronization (thanks to Ian Beckwith)
+  - Bugfix for number-handling in frames
+  - Bugfix for frame compression
+  - Set unsynchronization flag only, if unsynchronization was done and changed anything
+
+* Bugfix for ID3v1.pm:
+  - genres didn't return the id if the genre name was passed as parameter, but returned
+    the same name
+
+* Makefile.PL:
+  - overriding the manifypods() function in MakeMaker to add ID3v2-Data.pod to the MAN3PODS hash
+    (thanks to Dagfinn Ilmari Mannsaker)
+
+* Added copyright text, using Perl Artistic License
+
+Thanks to Ilya Zakharevich for the following changes:
+
+* Three new modules MP3::Tag::Inf, MP3::Tag::ParseData, and
+  MP3::Tag::CDDB_File added
+
+* Tag.pm:
+  - autoinfo() method returns the info for all ID3v1 tags;
+  - autoinfo() method may return the info which tag is obtained from
+    which source;
+  - Methods title(), author() etc (one per each ID3v1 tag) exist and
+    have uniform interface through all the subpackages;
+  - method song() is renamed to title(); method read_filename() is
+    renamed to parse_filename(); backward compatible name still
+    preserved;
+  - config() subroutine can now change all the arbitrary decisions;
+  - new methods interpolate() for tag interpolation into strings and
+    parse(), parse_rex() for an inverse operation;
+  - new subpackage `__hasparent' to treat cyclic object dependencies;
+  - per-object configuration;
+  - new configuration options extension, parse_data, parse_split,
+    parse_filename_ignore_case, parse_filename_merge_dots, parse_join;
+  - a way to store and query user-supplied data inside the object (may
+    be used as scratch space when parsing);
+  - new methods get_config(), get_user(), set_user(), parse_prepare(),
+    parse_rex_prepare(), parse_rex_match(), filename(), abs_filename(),
+    filename_nodir(), filename_noextension(), filename_nodir_noextension(),
+    abs_filename_noextension(), dirname(), filename_extension(),
+    filename_extension_nodot(), dir_component().
+
+* ID3v1.pm:
+  - new ID3v1 method fits_tags() to check whether the info can be
+    placed into an ID3v1 tag
+  - If no track given use automatically ID3v1.0 tag with longer comment
+  - open() file if needed; do not close() close during new().
+
+* ID3v2.pm:
+  - allow multiple frames to be returned by get_frame() in ID3v2;
+  - new method get_frames() with better order of returned values (comparing
+    to get_frame);
+  - get_frame_ids() in ID3v2 improved to take new argument 'truename' to
+    simplify looping over repeated frames;
+  - simpler treatement of sync; fix uncorrect calculation of padding length;
+  - overwrite the tail of the previously present tag with 0s;
+  - a couple of new v2.4 field names added.
+
+* File.pm:
+  - more robust parsing of filenames; year can be read from filename if
+    appended (in parentheses) to author or title; filename can be
+    F<.wav> as well.
+  - support file names starting with track numbers as in 03_This_is_the_title.mp3
+  - support track_title.ext and title_track.ext formats with one-word title too.
+  - new method filename();
+  - use the 'extension' configuration variable to strip extension.
+
+* misprints in the docs corrected and some general harmonization of function and
+  field names in the different modules
+
+* new example script mp3info2 (which provides most of functionality of the
+  "standard" mp3info utility, and much more).
+
+Release Name: 0.40
+==================
+Changes:
+
+* Updated documentation for MP3::Tag, MP3::Tag::ID3v1, MP3::Tag::ID3v2 and MP3::Tag::ID3v2-Data 
+
+* Renamed some functions. The old names will still work, but try to use the new names.
+  The following names were changed: 
+
+  - MP3::Tag::getTags() to MP3::Tag::get_tags() 
+  - MP3::Tag::newTag() to MP3::Tag::new_tag() 
+  - MP3::Tag::ID3v1::removeTag() to MP3::Tag::ID3v1::remove_tag() 
+  - MP3::Tag::ID3v1::writeTag() to MP3::Tag::ID3v1::write_tag() 
+  - MP3::Tag::ID2v2::getFrameIDs() to MP3::Tag::ID3v2::get_frame_ids() 
+  - MP3::Tag::ID2v2::getFrame() to MP3::Tag::ID3v2::get_frame() 
+  
+* Bugfix for ID3v2.pm:
+  - getFrame() returned "undef" as a string instead of simple undef
+  - artist() produced an error when TPE1 is missing in TAG
+ 
+* Bugfix for Tag.pm:
+  - DESTROY() checked only if $mp3->obj{filename} exists and not if it is defined before trying to 
+    close it  
+
+* Bugfix for ID3v1.pm:
+  - genres() expected an id3v1-object as first parameter and a genre
+    only as second parameter. Now the object can be omitted as in a call like
+    MP3::Tag::ID3v1->genres($genre) used by Tag.pm and ID3v2.pm
+
+* bugfix for File.pm:
+  - Filenames may contain surrounding whitespaces now
+
+Release Name: 0.30
+==================
+Changes:
+* Tag.pm
+  - autoinfo() function added. This returns artist/songtitle/track/album.
+    It tries to find this information in an ID3v1 or ID3v2 tag or tries 
+    to extract it from the filename. The order in which this happens
+    can be configured with the new config() function.
+* ID3v2.pm
+  - four new functions: artist(), song(), track() and album(). These
+    are included for compability with the ID3v1 and filename module.
+* Tag.pm / Tag::File.pm
+  - All file access routines are collected in an extra modul now.
+    This prevents circular references between Tag.pm and the ID3v..pm
+    modules. These circular references prevented Perl from calling
+    the destructor for mp3-objects.
+* tk-tag
+  - Loading/Saving of binary data in frame-fields is supported now
+  - tk-tag uses now the new what_data functionally of ID3v2 to offer 
+    BrowseEntrys for TCON and TFLT and also for parts of APIC and COMR
+  - Set Filename uses now the actual contents of the Tags not the old 
+    saved one
+  - Set Filename from ID3v2-Tag works now at least with Artist (%a),
+    Album(%l) and Song (%s)
+* ID3v2::what_data returns now also information about possible restricted
+  input for some frame fields (APIC; TCON; COMR; TFLT are supported yet).
+
+Release Name: 0.25
+==================
+Changes:
+
+* Bug-fix for MP3::Tag
+  If you created several mp3-objects for different files, the filehandles
+  for each file were not used correctly. Thanks to hakimian for reporting
+  this bug.
+* Bug-fix for ID3v2::remove_tag()
+  It was tried twice to rename one temp-file after removing the tag.
+  Thanks to Brent Sarten <bsarten@bigfoot.com> for reporting this.
+* Bug-fix for ID3v2::add_tag()
+  When adding a second (or third, ...) frame of a kind, a wrong header
+  could be written for this frame
+* Bug-fix for tk-tag 
+  When opening a new file, the contents of the ID3v2 tag of the last file
+  would be copied to the ID3v2 tag of the new file for all frames which
+  existed in the last file, but not in the new one.
+
+Release Name: 0.21
+==================
+Changes:
+
+* tk-tag has lots of new functions (see tk-tag README)
+* getFrameIDs returns now always a hash ref of all existing frames, not only
+  when called the first time
+* Some minor problems in documentation are corrected.
+* ID3v2::add_frame returns the name of the newly created frame, which can
+  differ from the short name when already such a frame exists.
+
+Release Name: 0.20 (beta)
+========================
+Changes:
+
+--due to problems when run at windows:
+  * Added a second seek to ID3v1::write_tag, as windows writes at a wrong 
+    position otherwise
+  * Setting Filehandle to binmode after opening a mp3 file 
+  * ID3v2: write_tag creates a temp file (if neccessary) now in the same
+    directory where the original mp3 files is located and not in /tmp
+
+* Added tk-tag.pl, a graphical interface for MP3::Tag. tk-tag.pl is a alpha
+  version
+* Added a new manpage MP3::Tag::ID3v2-Data which contains information about
+  the ID3v2 frames and the data returned by MP3::Tag::Id3v2::getFrame() 
+* Frames RVRB ("Reverb"), COMR ("Commercial frame"), AENC ("Audio encryption"),
+  GRID ("Group identification registration"), RBUF ("Recommended buffer size")
+  and SYTC ("Synchronized lyric/text") are now supported	
+* Added some test to test.pl for creating new tags
+* ID3v2::getFrameIDs returns now a hash reference, which contains the found
+  frames. The keys are the 4 byte codes of the frames, which are needed for
+  getFrame . The according values are the english (long) names of the frames.
+* ID3v2::write_tag - Updating tagsize after writing tag 
+* ID3v1::all() returns in array context all fields, otherwise only the song
+* MP3::ID3v1::write_tag didn't returned an error if a file couldn't be opened
+  for writing. Now it does.
+* Renamed MP3::TAG to MP3::Tag following a suggestion of ANDK from CPAN
+* Makefile.PL : Added that Compress::Zlib and File::Basename is needed for 
+  installation of MP3::Tag
+
+Release Name: 0.1 (beta)
+========================
+Changes:
+* Added documentation to the modules
+
+* Writing/removing of ID3v2.3 tags is supported now 
+* Adding, changing, removing frames of ID3v2.3 is supported
+
+* Changed directory structure
+* Added file for proper install of modules
+
+
+Release Name: 0.2-alpha
+=======================
+Changes: 
+* ID3v2.3 compressed frames are supported now 
+* changed directory structure, support librarys for MP3::Tag are now in a
+  subdirectory 
+* tagged.pl calls xview to show pictures, which were found in ID3v2 tags
+  (sorry, not configurable at the moment, but easy to change in tagged.pl)
+
+Release Name: 0.1-alpha
+=======================
+This is the first alpha version. It contains perl modules to
+read ID3v1/ID3v2 tags, but they are still lacking a lot of
+features. 
+
+* Reading / Writing ID3v1 works
+* Reading of most frames of ID3v2.3 works
+
+Included is a demo program tagged.pl, and a program to change ID3v1
+tags and to set automatically the filename of a mp3 file: tagit.pl See
+README.txt for details. More documentation is still lacking. Sorry.
+
+
+
+MP3::Tag can be found at http://sourceforge.net/projects/tagged
