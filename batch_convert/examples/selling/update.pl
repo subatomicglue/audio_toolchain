@@ -3,7 +3,7 @@ use File::Copy;
 
 # i.e.  subatomicglue - mantis - 01 - hard.flac
 
-$ENV{'PATH'} .= ";T:/subatomicglue/subatomic.music/2011crunchy/bin";
+$ENV{'PATH'} .= ";../..";
 
 system( 'playlist-gen.pl -i "*.wav" -o ./playlist.m3u' );
 system( 'cd-gen.pl -i "*.wav" -o cd.axp' );

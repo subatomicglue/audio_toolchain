@@ -5,7 +5,7 @@ use File::Copy;
 
 ###################################################################
 my $DIRNAME="inertialdecay";
-my $BINDIR="../../subatomic.music/2011-crunchy/bin";
+my $BINDIR="../../";
 ###################################################################
 
 $ENV{'PATH'} .= ";$BINDIR";
