@@ -15,7 +15,7 @@ Here are some command line tools I use for audio processing.
 
 ## Music Album Batch Conversion
   - I use these scripts to auto convert my albums of raw uncompressed .wav files to distributable mp3/ogg/flac with playlists.
-  - every album has a folder with .wav for each track of the album, plus [tags.ini](batch_convert/example/spinning/tags.ini) plus [update.pl](batch_convert/example/spinning/update.pl)
+  - every album has a folder with .wav for each track of the album, plus [tags.ini](batch_convert/example/selling/tags.ini) plus [update.pl](batch_convert/example/selling/update.pl)
   - For each compressed output format, update.pl calls:
     - [rip.pl](batch_convert/bin/rip.pl) (converts .wav to dest compressed format)
       - supports conversion from wav to mp3/flac/ogg
