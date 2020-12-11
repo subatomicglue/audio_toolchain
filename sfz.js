@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 let fs = require( "fs" );
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 
 // options:
 let note = 0;
@@ -62,21 +64,33 @@ if (ARGC == 0 || !(non_flag_args >= non_flag_args_required)) {
 }
 //////////////////////////////////////////
 
+function pad( s, size ) {
+  s = String( s );
+  while (s.length < (size || 2)) {s = "0" + s;}
+  return s;
+}
+function padf( s, size, size_dec ) {
+  if (typeof s == "number") { s = s.toFixed(size_dec) }
+  s = String( s );
+  while (s.length < ((size+size_dec+1) || 2)) {s = "0" + s;}
+  return s;
+}
 
-outfile = wavs[0];
+async function go() {
+  outfile = wavs[0];
 
-filename = outfile.replace( /^.*\/([^/]+)\.[^.]+$/g, "$1" )
-outpath = outfile.replace( /([^/]+)$/g, "" ).replace( /\/$/g, "" );
-if (outpath != "" && outpath != "." && outpath != "./")
-  fs.mkdirSync( outpath, { recursive: true } );
-console.log( `Creating:  \"${outfile}\" filename:${filename}` );
-let data = `
-// Sfz created with sfz.js (hack script kevin made)
-// Name      : gah
-// Author    :
-// Copyright :
+  filename = outfile.replace( /^.*\/([^/]+)\.[^.]+$/g, "$1" )
+  outpath = outfile.replace( /([^/]+)$/g, "" ).replace( /\/$/g, "" );
+  if (outpath != "" && outpath != "." && outpath != "./")
+    fs.mkdirSync( outpath, { recursive: true } );
+  console.log( `Creating:  \"${outfile}\" filename:${filename}` );
+  let data = `
+// Sfz created with sfz.js
+// Name      : ${filename}
+// Author    : sfz.sh (kevin)
+// Copyright : (c) today
 // Date      : 2020/12/01
-// Comment   :
+// Comment   : auto generated
 
 <group>
 loop_mode=no_loop
@@ -91,25 +105,63 @@ cutoff=19913
 
 `;
 
-for (let p of note_sample_pairs) {
-  let note = p.note;
-  let sampleset_path = p.samp;
-  let sampleset_name = p.samp.replace( /\/$/, '' ).match( /([^/]+)$/ )[1];
-  console.log( `note: ${note} sampleset_path: "${sampleset_path}" sampleset_name: "${sampleset_name}"` );
-  let sample_files = fs.readdirSync( sampleset_path );
-  for (let f of sample_files) {
-    let vel = f.match( /\s([-.0-9]+)\.[^.]+$/ )[1];
-    console.log( ` - sample_path: "${f}" sample_velocity: ${vel}` );
-    
-  }
+  for (let p of note_sample_pairs) {
+    let vel_type = ""; // we detect the type of velocity in the sample set (mixing db and lvl wont work)
+    let note = p.note;
+    let sampleset_path = p.samp;
+    let sampleset_name = p.samp.replace( /\/$/, '' ).match( /([^/]+)$/ )[1];
+    console.log( `note: ${note} sampleset_path: "${sampleset_path}" sampleset_name: "${sampleset_name}"` );
+    console.log( "- Loading Sample Names" );
+    let sample_files = fs.readdirSync( sampleset_path );
+    let sampleset = [];
+    for (let f of sample_files) {
+      let vel  = f.match( /\s([-.0-9]+)(d?b?)\.[^.]+$/ )[1];
+      vel_type = f.match( /\s([-.0-9]+)(d?b?)\.[^.]+$/ )[2] ? "db" : "lvl";
+      let velFlt = parseFloat( vel );
+      let samps = 0;
+      try {
+        const { stdout, stderr } = await exec( `./samples.sh --nocr "${sampleset_path}/${f}"` );
+        samps = parseInt( stdout );
+      } catch (err) {
+        console.log( err );
+      }
+      if (samps > 0) {
+        console.log( ` - sample: "${f}" sample_vel: ${padf( velFlt, 1, 6 )} velocity_type: "${vel_type}" samps:${samps}` );
+        sampleset.push( { lokey: p.note, hikey: p.note, sample: f, sample_fullname: sampleset_path + "/" + f, sample_vel: velFlt,  samps: samps } );
+      } else {
+        console.log( ` - SKIPPING "${f}", 0 samples` );
+      }
+    }
 
-  for (let duh of duhs) {
-    console.log( `Sample:  \"${p.note}\" ${p.samp} ${file}` );
-    data += `<region>
-sample=${p.samp.replace( /\//g, "\\")}\\${file}
-lokey=${p.note} hikey=${p.note}
-pitch_keycenter=60
-lovel=0 hivel=127
+    console.log( "- Sorting by velocity" );
+    sampleset = sampleset.sort( (a,b) => a.sample_vel - b.sample_vel ); // ascending 0 to 1
+
+    console.log( "- Normalizing Vel" );
+    let lo = sampleset[0].sample_vel;
+    let hi = sampleset[sampleset.length-1].sample_vel;
+    for (let s of sampleset) {
+      let old = s.sample_vel;
+      s.sample_vel = (s.sample_vel-lo) * (1-lo)/(hi-lo) + lo // scale [lo..hi] to [lo..1]  (preserve existing lo, hi becomes 1)
+      //s.sample_vel = (s.sample_vel-lo) / (hi-lo)             // scale [lo..hi] to [0..1]   (existing lo becomes 0, hi becomes 1)
+      s.vel = Math.floor( s.sample_vel * 127 );
+      console.log( `  - normalizing: "${s.sample}" old:${padf( old, 1, 6 )} new:${padf( s.sample_vel, 1, 6 )} vel:${s.vel}` );
+    }
+
+    console.log( "- Filling in Vel Ranges" );
+    for (let i = 0; i < sampleset.length; ++i) {
+      let s = sampleset[i];
+      s.lovel = i == 0 ? 0 : sampleset[i-1].vel+1;
+      s.hivel = i == (sampleset.length-1) ? 127 : s.vel;
+      console.log( `  - sample: "${s.sample}" sample_vel: ${padf( s.sample_vel, 1, 6 )} lokey:${pad(s.lokey, 3)} hikey:${pad(s.hikey, 3)} lovel:${pad( s.lovel, 3 )} hivel:${pad( s.hivel, 3 )}` );
+    }
+
+    for (let s of sampleset) {
+      console.log( `- Writing Sample: samp:"${s.sample_fullname}" key:${pad(s.lokey, 3)}-${pad(s.hikey, 3)} vel:${pad(s.lovel,3)}-${pad(s.hivel,3)}` );
+      data += `<region>
+sample=${s.sample_fullname.replace( /\//g, "\\")}
+lokey=${s.lokey} hikey=${s.hikey}
+pitch_keycenter=${s.lokey}
+lovel=${s.lovel} hivel=${s.hivel}
 fil_type=lpf_2p
 cutoff=19914
 pan=0
@@ -122,13 +174,18 @@ transpose=0
 tune=0
 pitch_keytrack=0
 offset=0
-end=15424
+end=${s.samps}
 loop_start=0
 loop_end=0
 
 `;
+    }
   }
+
+  fs.writeFileSync( outfile, data );
 }
 
-fs.writeFileSync( outfile, data );
+(async () => {
+  go();
+})();
 
