@@ -77,6 +77,7 @@ function padf( s, size, size_dec ) {
 }
 
 async function go() {
+  console.log( `process args: ${ARGC}  ${ARGV}` );
   outfile = wavs[0];
 
   filename = outfile.replace( /^.*\/([^/]+)\.[^.]+$/g, "$1" )

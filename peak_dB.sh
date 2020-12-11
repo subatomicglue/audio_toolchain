@@ -46,6 +46,11 @@ for ((i = 0; i < ARGC; i++)); do
     $VERBOSE && echo "Parsing Args: Will not output New Line after single result"
     continue
   fi
+  if [[ $ARGC -ge 1 && ${ARGV[$i]:0:2} == "--" ]]; then
+    echo "Unknown option ${ARGV[$i]}"
+    exit -1
+  fi
+
   wavs+=("${ARGV[$i]}")
   $VERBOSE && echo "Parsing Args: Audio: \"${ARGV[$i]}\""
 done

@@ -1,21 +1,21 @@
 #!/bin/sh
 
 # options:
-dest_dir="normalized"        # CAUTION we DELETE this dir! (unique name here)
+dest_dir="mono"        # CAUTION we DELETE this dir! (unique name here)
 wavs=()
 VERBOSE=false
-level=0.01
+mix="left"  # left, right, mix
 
 ################################
 # scan command line args:
 function usage
 {
-  echo "$0 normalize audio files"
+  echo "$0 make audio files mono"
   echo "Usage: "
   echo "  $0 <wav files>   (list of wav files to rename, copying to '$dest_dir/')"
   echo "  $0 --help        (this help)"
   echo "  $0 --verbose     (output verbose information)"
-  echo "  $0 --level       (default $level)"
+  echo "  $0 --mix         (left, right or mix. default $mix)"
   echo "  $0 --destdir     (default '$dest_dir/')"
   echo ""
 }
@@ -32,10 +32,10 @@ for ((i = 0; i < ARGC; i++)); do
     VERBOSE=true
     continue
   fi
-  if [[ $ARGC -ge 1 && ${ARGV[$i]} == "--level" ]]; then
+  if [[ $ARGC -ge 1 && ${ARGV[$i]} == "--mix" ]]; then
     ((i+=1))
-    level=${ARGV[$i]}
-    $VERBOSE && echo "Parsing Args: Changing level to $level"
+    mix=${ARGV[$i]}
+    $VERBOSE && echo "Parsing Args: Changing mix to $level"
     continue
   fi
   if [[ $ARGC -ge 1 && ${ARGV[$i]} == "--destdir" ]]; then
@@ -82,7 +82,13 @@ for f in "${wavs[@]}"; do
 
   echo "$f -> $dest_dir/$outpath/$outfilename$outfileext"
   mkdir -p "./$dest_dir/$outpath"
-  sox "$f" "./$dest_dir/$outpath/$outfilename$outfileext" norm -$level
+  if [ $mix == "left" ]; then
+    sox "$f" "./$dest_dir/$outpath/$outfilename$outfileext" remix 1
+  elif [ $mix == "right" ]; then
+    sox "$f" "./$dest_dir/$outpath/$outfilename$outfileext" remix 2
+  elif [ $mix == "mix" ]; then
+    sox "$f" "./$dest_dir/$outpath/$outfilename$outfileext" remix 1,2
+  fi
 done
 
 

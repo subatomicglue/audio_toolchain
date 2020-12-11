@@ -52,6 +52,11 @@ for ((i = 0; i < ARGC; i++)); do
     $VERBOSE && echo "Parsing Args: Changing dest_dir to $dest_dir"
     continue
   fi
+  if [[ $ARGC -ge 1 && ${ARGV[$i]:0:2} == "--" ]]; then
+    echo "Unknown option ${ARGV[$i]}"
+    exit -1
+  fi
+
   wavs+=("${ARGV[$i]}")
   $VERBOSE && echo "Parsing Args: Audio: \"${ARGV[$i]}\""
   ((non_flag_args+=1))
@@ -81,8 +86,14 @@ for f in "${wavs[@]}"; do
   outfileext=`echo "$f_new" | sed -E "s/^.*\/[^/]+(\.[^.]+)$/\1/g"`
   outfilename=`echo "$f_new" | sed -E "s/^.*\/([^/]+)\.[^.]+$/\1/g"`
 
-  #outpath=`echo "$f_new" | sed -E "s/([^/]+)$//g" | sed -E "s/\/$//g"` # use all of infile's path
-  outpath=`echo "$f_new" | sed -E "s/([^/]+)$//g" | sed -E "s/\/$//g" | sed -E "s/^.*\///g"` # use infile's parent dirname only
+  #outpath=`echo "$f_new" | sed -E "s/([^/]+)$//g" | sed -E "s/\/$//g"` # use all of infile's path ("src/SD/SD.wav" to "src/SD")
+  outpath=`echo "$f_new" | sed -E "s/([^/]+)$//g" | sed -E "s/\/$//g" | sed -E "s/^.*\///g"` # use infile's parent dirname only ("src/SD/SD.wav" to "SD")
+
+  # if only one directory (when full path == parent dir)  (e.g. "src/file.wav" parent dir is "src")
+  fullpath=`echo "$f_new" | sed -E "s/\/?([^/]+)$//g"`
+  if [ "$outpath" == "$fullpath" ]; then
+    outpath="."
+  fi
 
   echo "$f -> $dest_dir/$outpath/$outfilename$outfileext"
   mkdir -p "./$dest_dir/$outpath"
