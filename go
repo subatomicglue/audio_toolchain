@@ -46,6 +46,7 @@ $VERBOSE && read -p "Press any key..."
 
 # convert sf2 instrument to sfz directory (bundles all samples together)
 # TODO: maybe want to bundle the original .wavs in case there is loss of quality?
+#       YEP: we lose SFZ's lorand and hirand in SF2... TODO: change this
 IN_DIR=$OUT_DIR; OUT_DIR=.
 rm -rf $TEMPDIR/$OUT_DIR/drumkit_sfz
 ./sf2_to_sfz.sh $TEMPDIR/$IN_DIR/drumkit.sf2
