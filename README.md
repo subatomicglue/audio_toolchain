@@ -50,6 +50,10 @@ All of these are open source, cross platform tools, that are available in many p
 
 ## MacOS
 ```
+# macos's sed is non-standard, we can fix that
+brew install gnu-sed       # and follow the instructions to add to your PATH
+                           # `which sed` should show the new `*/gnubin` location
+
 # needed for sampler/auto-slicer tools
 brew install node
 brew install polyphone
