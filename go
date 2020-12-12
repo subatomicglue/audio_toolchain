@@ -2,8 +2,8 @@
 
 VERBOSE=false # for debugging (set to true or false)
 TEMPDIR="__intermediate"  # careful, UNIQUE name only, choose name wisely, we'll rm -r it later
-IN_DIR=src
-OUT_DIR="$IN_DIR"
+IN_DIR=src        # below we'll use  IN_DIR for the processing pipeline
+OUT_DIR="$IN_DIR" # below we'll use OUT_DIR for the processing pipeline
 
 # just a test...
 #./slice.sh src/SD.aif autosliced
@@ -17,13 +17,11 @@ IN_DIR=$OUT_DIR; OUT_DIR=src_mono
 $VERBOSE && read -p "Press any key..."
 
 # auto slice the source wavs which contain instrument samples separated by silence
-# input wavs read from src/, output individual chopped samples to autosliced/
 IN_DIR=$OUT_DIR; OUT_DIR=autosliced
 ./slice.sh $TEMPDIR/$IN_DIR/*.aif $TEMPDIR/$OUT_DIR
 $VERBOSE && read -p "Press any key..."
 
 # rename sample files by their velocity
-# input wavs from autosliced/, output renamed wavs to final_lvl/ and final_db/
 IN_DIR=$OUT_DIR; OUT_DIR=renamed_vel
 ./rename.sh --destdir $TEMPDIR/$OUT_DIR --type lvl $TEMPDIR/$IN_DIR/*/*.wav
 $VERBOSE && read -p "Press any key..."
@@ -52,5 +50,6 @@ rm -r $OUT_DIR/drumkit_sfz
 ./sf2_to_sfz.sh $IN_DIR/drumkit.sf2
 $VERBOSE && read -p "Press any key..."
 
-
+# clean up, leave no evidence
 rm -r $TEMPDIR
+
