@@ -1,9 +1,10 @@
 #!/bin/sh
 
 VERBOSE=false # for debugging (set to true or false)
-TEMPDIR="__intermediate"  # careful, UNIQUE name only, choose name wisely, we'll rm -r it later
+TEMPDIR="__intermediate"  # careful, UNIQUE name only, choose name wisely, we'll rm -rf it later
 IN_DIR=src        # below we'll use  IN_DIR for the processing pipeline
 OUT_DIR="$IN_DIR" # below we'll use OUT_DIR for the processing pipeline
+rm -rf $TEMPDIR   # clean out the tempdir
 
 # just a test...
 #./slice.sh src/SD.aif autosliced
@@ -34,22 +35,28 @@ $VERBOSE && read -p "Press any key..."
 # create a sampler instrument from the set of samples
 # (suck in the .def file, which is just a bash command line, collapse newlines)
 IN_DIR=$OUT_DIR; OUT_DIR=.
-bash -c "./sfz.js --prefix $TEMPDIR/$IN_DIR $(echo $(tr '\n' ' ' < drumkit.def)) $OUT_DIR/drumkit.sfz"
+bash -c "./sfz.js --prefix $IN_DIR $(echo $(tr '\n' ' ' < drumkit.def)) $TEMPDIR/$OUT_DIR/drumkit.sfz"
 $VERBOSE && read -p "Press any key..."
 
 # convert sfz instrument to sf2 file
 IN_DIR=$OUT_DIR; OUT_DIR=.
-rm $OUT_DIR/drumkit.sf2
-./sfz_to_sf2.sh $IN_DIR/drumkit.sfz
+rm -f $OUT_DIR/drumkit.sf2
+./sfz_to_sf2.sh $TEMPDIR/$IN_DIR/drumkit.sfz
 $VERBOSE && read -p "Press any key..."
 
 # convert sf2 instrument to sfz directory (bundles all samples together)
 # TODO: maybe want to bundle the original .wavs in case there is loss of quality?
 IN_DIR=$OUT_DIR; OUT_DIR=.
-rm -r $OUT_DIR/drumkit_sfz
-./sf2_to_sfz.sh $IN_DIR/drumkit.sf2
+rm -rf $TEMPDIR/$OUT_DIR/drumkit_sfz
+./sf2_to_sfz.sh $TEMPDIR/$IN_DIR/drumkit.sf2
 $VERBOSE && read -p "Press any key..."
 
+# results!  collect them
+rm -f ./drumkit.sf2
+rm -rf ./drumkit_sfz
+cp $TEMPDIR/$IN_DIR/drumkit.sf2 .
+cp -r $TEMPDIR/$IN_DIR/drumkit_sfz .
+
 # clean up, leave no evidence
-rm -r $TEMPDIR
+rm -rf $TEMPDIR
 

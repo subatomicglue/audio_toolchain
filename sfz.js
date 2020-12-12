@@ -95,6 +95,7 @@ function padf( s, size, size_dec ) {
 async function go() {
   console.log( `process args: ${ARGC}  ${ARGV}` );
   outfile = wavs[0];
+  outpath = outfile.replace( /\/*[^/]+$/, '' )
 
   filename = outfile.replace( /^.*\/([^/]+)\.[^.]+$/g, "$1" )
   outpath = outfile.replace( /([^/]+)$/g, "" ).replace( /\/$/g, "" );
@@ -126,10 +127,11 @@ cutoff=19913
     let vel_type = ""; // we detect the type of velocity in the sample set (mixing db and lvl wont work)
     let note = p.note;
     let sampleset_path = p.samp;
+    let sampleset_path_rel = outpath + '/' + p.samp; // relative to the script dir (may be different)
     let sampleset_name = p.samp.replace( /\/$/, '' ).match( /([^/]+)$/ )[1];
     console.log( `note: ${note} sampleset_path: "${sampleset_path}" sampleset_name: "${sampleset_name}"` );
     console.log( "- Loading Sample Names" );
-    let sample_files = fs.readdirSync( sampleset_path );
+    let sample_files = fs.readdirSync( sampleset_path_rel );
     let sampleset = [];
     for (let f of sample_files) {
       let vel  = f.match( /\s([-.0-9]+)(d?b?)\.[^.]+$/ )[1];
@@ -137,7 +139,7 @@ cutoff=19913
       let velFlt = parseFloat( vel );
       let samps = 0;
       try {
-        const { stdout, stderr } = await exec( `./samples.sh --nocr "${sampleset_path}/${f}"` );
+        const { stdout, stderr } = await exec( `./samples.sh --nocr "${sampleset_path_rel}/${f}"` );
         samps = parseInt( stdout );
       } catch (err) {
         console.log( err );

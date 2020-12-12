@@ -3,4 +3,6 @@
 infile=$1
 outfile=$(echo "$infile" | sed -E "s/\.[^.]+$//g")
 
+echo "==================================================="
+echo "Converting $infile to $outfile (thanks polyphone!)"
 /Applications/polyphone-2.2.app/Contents/MacOS/polyphone -3 -i "$infile" -d . -o "${outfile}_sfz"
