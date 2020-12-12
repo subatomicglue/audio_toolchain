@@ -7,6 +7,7 @@ const exec = util.promisify(require('child_process').exec);
 // options:
 let note = 0;
 let samp = "";
+let prefix = "";
 let wavs = [];
 let note_sample_pairs = []; // [ {note: 63,samp: "BD"}, {note: 64, samp: "SD"}, ... ]
 let VERBOSE=false;
@@ -22,6 +23,7 @@ function usage()
    ${process.argv[1]} --verbose     (output verbose information)
    ${process.argv[1]} --note        (note to map to: e.g. 36)
    ${process.argv[1]} --samp        (sample prefix to map to: e.g. ./BD/BD)
+   ${process.argv[1]} --prefix      (prefix string to prepend to sample path: default '${prefix}/')
   ` );
 }
 let ARGC = process.argv.length-2; // 1st 2 are node and script name...
@@ -47,12 +49,25 @@ for (let i = 2; i < (ARGC+2); i++) {
   if (ARGV[i] == "--samp") {
     i+=1;
     samp=ARGV[i]
+    if (prefix != '') samp = prefix + "/" + samp; // prepend prefix
     VERBOSE && console.log( `Parsing Args: Sample ${samp}` )
-    note_sample_pairs.push( { note: note, samp: samp } );
+    note_sample_pairs.push( { note: note, samp: samp } ); // log the note/samp pair
     continue
   }
+  if (ARGV[i] == "--prefix") {
+    i+=1;
+    prefix=ARGV[i]
+    prefix.replace( /\/+$/, '' ) // remove trailing slash if present
+    VERBOSE && console.log( `Parsing Args: Sample Path Prefix ${prefix} (e.g. ${prefix}/MySample.wav)` )
+    continue
+  }
+  if (ARGV[i].substr(0,2) == "--") {
+    console.log( `Unknown option ${ARGV[i]}` );
+    process.exit(-1)
+  }
+
   wavs.push( ARGV[i] )
-  VERBOSE && console.log( `Parsing Args: Audio: \"${ARGV[i]}\"` )
+  VERBOSE && console.log( `Parsing Args: argument #${non_flag_args}: \"${ARGV[i]}\"` )
   non_flag_args += 1
 }
 
@@ -63,6 +78,7 @@ if (ARGC == 0 || !(non_flag_args >= non_flag_args_required)) {
   process.exit( -1 );
 }
 //////////////////////////////////////////
+
 
 function pad( s, size ) {
   s = String( s );
@@ -183,6 +199,7 @@ loop_end=0
     }
   }
 
+  console.log( `Writing: ${outfile}` );
   fs.writeFileSync( outfile, data );
 }
 
