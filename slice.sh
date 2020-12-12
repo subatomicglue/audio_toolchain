@@ -11,7 +11,7 @@ function usage
 {
   echo "$0   auto slices a single audio file containing music instrument samples (separated by silence), into separate .wav files (timmed by silence)"
   echo "Usage: "
-  echo "  $0 <in> <out>    (in/out files: ./SD.aif ./SD/SD.wav)"
+  echo "  $0 <in> <out>    (in file & out directory: ./SD.aif ./SD)"
   echo "  $0 --help        (this help)"
   echo "  $0 --verbose     (output verbose information)"
   echo "  $0 --thresh      (silence threshold, default: $thresh)"
