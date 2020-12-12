@@ -41,14 +41,14 @@ $VERBOSE && read -p "Press any key..."
 
 # convert sfz instrument to sf2 file
 IN_DIR=$OUT_DIR; OUT_DIR=.
-rm -f $OUT_DIR/drumkit.sf2
+rm $OUT_DIR/drumkit.sf2
 ./sfz_to_sf2.sh $IN_DIR/drumkit.sfz
 $VERBOSE && read -p "Press any key..."
 
 # convert sf2 instrument to sfz directory (bundles all samples together)
 # TODO: maybe want to bundle the original .wavs in case there is loss of quality?
 IN_DIR=$OUT_DIR; OUT_DIR=.
-rm -f $OUT_DIR/drumkit_sfz
+rm -r $OUT_DIR/drumkit_sfz
 ./sf2_to_sfz.sh $IN_DIR/drumkit.sf2
 $VERBOSE && read -p "Press any key..."
 
