@@ -4,7 +4,7 @@
 Here are some command line tools I use for audio processing.
 
 ## Sampler Auto Slicing
-  - I use these command line scripts to auto convert a "source" - a single audio file containing recordings of many samples (e.g. separate bass drum hits at different volumes), auto sliced by silence to separate sample files named with the velocity level, and then convert to sfz or sf2 sample sets.
+  - I use these command line scripts to auto convert single "source" audio files containing recordings of many samples (e.g. bass drum hits at different volumes separated by silence).  We can auto slice these "source" files by silence into separate sample files, renamed with the velocity level, converted to mono, normalized, and then converted to sfz or sf2 sample sets.  All with command line batch tools.
     - [slice.sh](slice.sh) auto slices a single audio file containing music instrument samples (separated by silence), into separate .wav files (timmed by silence)
       - uses `sox` to split the file using specified silence level threshold
     - [rename.sh](rename.sh) rename audio files by their peak level.  useful for individual instrument samples.
