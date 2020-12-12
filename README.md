@@ -9,6 +9,8 @@ Here are some command line tools I use for audio processing.
       - uses `sox` to split the file using specified silence level threshold
     - [rename.sh](rename.sh) rename audio files by their peak level.  useful for individual instrument samples.
       - uses `sox` to detect the sound level
+    - [mono.sh](mono.sh) make audio files mono
+      - uses `sox` to isolate the left or right channels, or mix them
     - [normalize.sh](normalize.sh) normalize the level of audio files
       - uses `sox` to normalize the sound level
     - [sfz.js](sfz.js) command line script to create a .sfz sampler instrument bank
