@@ -18,7 +18,7 @@ $VERBOSE && read -p "Press any key..."
 
 # auto slice the source wavs which contain instrument samples separated by silence
 IN_DIR=$OUT_DIR; OUT_DIR=autosliced
-./slice.sh $TEMPDIR/$IN_DIR/*.aif $TEMPDIR/$OUT_DIR
+./slice.sh --destdir $TEMPDIR/$OUT_DIR $TEMPDIR/$IN_DIR/*.aif
 $VERBOSE && read -p "Press any key..."
 
 # rename sample files by their velocity
