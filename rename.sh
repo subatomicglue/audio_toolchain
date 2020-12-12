@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # options:
-dest_dir="final"        # CAUTION we DELETE this dir! (unique name here)
 type="db"               # peak "db" or "lvl"
+dest_dir="renamed"      # CAUTION we DELETE this dir! (unique name here)
 seconds_to_scan=1
 wavs=()
 VERBOSE=false
@@ -13,12 +13,12 @@ function usage
 {
   echo "$0 rename audio files by their peak level.  useful for individual instrument samples."
   echo "Usage: "
-  echo "  $0 <wav files>   (list of wav files to rename, copying to $dest_dir)"
+  echo "  $0 <wav files>   (list of wav files to rename, copying to '$dest_dir/')"
   echo "  $0 --help        (this help)"
   echo "  $0 --verbose     (output verbose information)"
   echo "  $0 --seconds     (number of seconds to scan, default $seconds_to_scan)"
   echo "  $0 --type        (use peak db or lvl in the rename, default $type)"
-  echo "  $0 --destdir     (default $dest_dir)"
+  echo "  $0 --destdir     (default '$dest_dir/')"
   echo ""
 }
 ARGC=$#
@@ -70,8 +70,6 @@ if [[ $ARGC -eq 0 || ! $ARGC -ge $non_flag_args_required ]]; then
 fi
 ################################
 
-
-dest_dir="${dest_dir}_$type"
 rm -fr "./$dest_dir"
 mkdir -p "./$dest_dir"
 
