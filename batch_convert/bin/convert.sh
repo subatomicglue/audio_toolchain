@@ -37,8 +37,8 @@ function convert_audio_to_dir
   echo $cmd
   eval $cmd
 
-  echo "copy *.jpg *.txt $dest\n"
-  cp *.jpg *.txt $dest/
+  echo "copy *.jpg *-*-*README.txt $dest\n"
+  cp ./*.jpg ./*-*-*README.txt $dest/
   echo ". . . . . . . .  .  .   .   .  .  . . . . . ."
 }
 
@@ -52,6 +52,7 @@ echo "============================================="
 cmd="$BINDIR/rename_audiotrack_to_shortnames.pl -i \"$OUTDIR-mp3/*.mp3\" -o \"$OUTDIR-mp3-shortnames\""
 echo $cmd
 eval $cmd
-cp ./Folder.jpg "$OUTDIR-mp3-shortnames/"
+cp ./*-*-*README.txt $dest/README.txt
+cp ./*.jpg "$OUTDIR-mp3-shortnames/"
 echo ". . . . . . . .  .  .   .   .  .  . . . . . ."
 

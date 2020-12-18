@@ -32,3 +32,5 @@ echo "hello world\n\n<tell us all about your album here>\n\nrun ../../bin/conver
 echo ". . .\nContents of README.txt:"
 cat README.txt
 
+mv README.txt "subatomicglue - inertialdecay - README.txt"
+cp Folder.jpg "subatomicglue - inertialdecay.jpg"
