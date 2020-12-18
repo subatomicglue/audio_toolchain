@@ -1,9 +1,15 @@
 #!/bin/sh
 
-# i.e.  subatomicglue - mantis - 01 - hard.flac
+# our standard audiotrack naming convention:
+#       <bandname> - <albumname> - <tracknum> - <trackname>.wav
+# i.e.  subatomicglue - mantis - 01 - hard.wav
+# (we pad the tracknum for alphebetical dir listing...)
 
-DIRNAME="inertialdecay"
-BINDIR="../../bin"
+########################################################################
+# CONFIGURATION (edit this!)
+OUTDIR="out"                # name of output directory
+BINDIR="../../bin"          # where the batch tools are installed
+########################################################################
 
 #PATH="$PATH";"$BINDIR"
 
@@ -13,14 +19,14 @@ $BINDIR/playlist-gen.pl -i "*.wav" -o ./playlist.m3u
 echo "Generate a CDBurnerXP project file for burning a CD"
 $BINDIR/cd-gen.pl -i "*.wav" -o cd.axp
 
-#$BINDIR/makeshortmp3s.pl
-#cp Folder.jpg mp3crunchy-rip
-
 # usage: convert_audio_to_dir <outputdir> <type>
 function convert_audio_to_dir
 {
   dest=$1
   type=$2
+  echo "============================================="
+  echo "Converting *.wav to $dest/ (type = $type)"
+  echo "============================================="
 
   cmd="$BINDIR/rip.pl -i \"*.wav\" -o \"$dest\" -t $type"
   echo $cmd
@@ -36,10 +42,19 @@ function convert_audio_to_dir
 
   echo "copy *.jpg *.txt $dest\n"
   cp *.jpg *.txt $dest/
+  echo ". . . . . . . .  .  .   .   .  .  . . . . . ."
 }
 
-# output directories _next_ to my directory
-convert_audio_to_dir "../$DIRNAME-mp3" "mp3"
-convert_audio_to_dir "../$DIRNAME-ogg" "ogg"
-convert_audio_to_dir "../$DIRNAME-flac" "flac"
+convert_audio_to_dir "$OUTDIR-mp3" "mp3"
+convert_audio_to_dir "$OUTDIR-ogg" "ogg"
+convert_audio_to_dir "$OUTDIR-flac" "flac"
+
+echo "============================================="
+echo "Creating shortnames for $OUTDIR-mp3 (copying to $OUTDIR-mp3-shortnames)"
+echo "============================================="
+cmd="$BINDIR/rename_audiotrack_to_shortnames.pl -i \"$OUTDIR-mp3/*.mp3\" -o \"$OUTDIR-mp3-shortnames\""
+echo $cmd
+eval $cmd
+cp ./Folder.jpg "$OUTDIR-mp3-shortnames/"
+echo ". . . . . . . .  .  .   .   .  .  . . . . . ."
 
