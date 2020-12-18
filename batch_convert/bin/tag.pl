@@ -10,11 +10,12 @@ BEGIN
 
    # defaults
    $IN_FILES  = "";
-   $BIN_PATH = dirname( abs_path($0) );
+   $BIN_PATH = dirname( abs_path($0) ); # my script dir
    $TAGINI = "tags.ini";
+   $CWD=$cwd;
 
    sub defaults()
-   { return "in[$IN_FILES] config[$TAGINI] tools[$BIN_PATH]"; }
+   { return "in[$IN_FILES] config[$TAGINI] scriptdir[$BIN_PATH]"; }
 
    # command line can override defaults
    for (my $x = 0; $x < @ARGV; $x++)
@@ -23,12 +24,6 @@ BEGIN
       {
          $x++;
          $TAGINI = $ARGV[$x];
-      }
-      elsif ($ARGV[$x] eq "-tools")
-      {
-         $x++;
-         $BIN_PATH = $ARGV[$x];
-         $BIN_PATH =~ s/[\\\/]$//;
       }
       elsif ($ARGV[$x] eq "-i" || $ARGV[$x] eq "-in")
       {
@@ -39,7 +34,7 @@ BEGIN
       {
          print "usage:\n";
          print " tag.pl -i \"mp3-rip/*.mp3\" -c $TAGINI\n";
-         print " tag.pl -i \"mp3-rip/*.mp3 flac-rip/*.flac ogg-rip/*.ogg\" -c $TAGINI -tools $BIN_PATH\n";
+         print " tag.pl -i \"mp3-rip/*.mp3 flac-rip/*.flac ogg-rip/*.ogg\" -c $TAGINI\n";
          print "\n";
          print "defaults:\n";
          print " ".defaults()."\n";
@@ -51,7 +46,7 @@ BEGIN
 print "tag[".defaults()."\n";
 
 # include tag.ini
-require "$TAGINI";
+require "$CWD/$TAGINI";
 print " ::$ALBUMARTIST $DATE $COMPOSER $PUBLISHER $GENRE $COPYRIGHT::\n";
 
 # the audio files we want to auto-tag (flac/ogg/mp3 types)
@@ -78,7 +73,7 @@ sub trim($)
    return $string;
 }
 
-@lame_help = `"$BIN_PATH/lame" --help`;
+@lame_help = `lame --help`;
 
 # loop over file list
 # print tag information
@@ -199,38 +194,41 @@ foreach (@files)
    # tag FLAC files
    if ($ext =~ /flac/i)
    {
-      `"$BIN_PATH/metaflac" --remove-tag=TITLE --set-tag=\"TITLE=$title\"
-                           --remove-tag=ARTIST --set-tag=\"ARTIST=$artist\"
-                           --remove-tag=ALBUM --set-tag=\"ALBUM=$album\"
-                           --remove-tag=\"ALBUM ARTIST\" --set-tag=\"ALBUM ARTIST=$ALBUMARTIST\"
-                           --remove-tag=DATE --set-tag=\"DATE=$DATE\"
-                           --remove-tag=COMMENT --set-tag=\"COMMENT=$COMMENT\"
-                           --remove-tag=COMPOSER --set-tag=\"COMPOSER=$COMPOSER\"
-                           --remove-tag=PUBLISHER --set-tag=\"PUBLISHER=$PUBLISHER\"
-                           --remove-tag=TRACKNUMBER --set-tag=\"TRACKNUMBER=$track\"
-                           --remove-tag=DISCNUMBER --set-tag=\"DISCNUMBER=$DISCNUMBER\"
-                           --remove-tag=BPM --set-tag=\"BPM=$BPM\"
-                           --remove-tag=GENRE --set-tag=\"GENRE=$GENRE\"
-                           -- \"$filename\"`;
+      my $cmd = "metaflac ".
+                "--remove-tag=TITLE --set-tag=\"TITLE=$title\" ".
+                "--remove-tag=ARTIST --set-tag=\"ARTIST=$artist\" ".
+                "--remove-tag=ALBUM --set-tag=\"ALBUM=$album\" ".
+                "--remove-tag=\"ALBUM ARTIST\" --set-tag=\"ALBUM ARTIST=$ALBUMARTIST\" ".
+                "--remove-tag=DATE --set-tag=\"DATE=$DATE\" ".
+                "--remove-tag=COMMENT --set-tag=\"COMMENT=$COMMENT\" ".
+                "--remove-tag=COMPOSER --set-tag=\"COMPOSER=$COMPOSER\" ".
+                "--remove-tag=PUBLISHER --set-tag=\"PUBLISHER=$PUBLISHER\" ".
+                "--remove-tag=TRACKNUMBER --set-tag=\"TRACKNUMBER=$track\" ".
+                "--remove-tag=DISCNUMBER --set-tag=\"DISCNUMBER=$DISCNUMBER\" ".
+                "--remove-tag=BPM --set-tag=\"BPM=$BPM\" ".
+                "--remove-tag=GENRE --set-tag=\"GENRE=$GENRE\" ".
+                "-- \"$filename\" ";
+      `$cmd`;
    }
 
    # tag OGG files
    if ($ext =~ /ogg/i)
    {
-      `"$BIN_PATH/vorbiscomment" -w
-                           -t \"TITLE=$title\"
-                           -t \"ARTIST=$artist\"
-                           -t \"ALBUM=$album\"
-                           -t \"ALBUM ARTIST=$ALBUMARTIST\"
-                           -t \"DATE=$DATE\"
-                           -t \"COMMENT=$COMMENT\"
-                           -t \"COMPOSER=$COMPOSER\"
-                           -t \"PUBLISHER=$PUBLISHER\"
-                           -t \"TRACKNUMBER=$track\"
-                           -t \"DISCNUMBER=$DISCNUMBER\"
-                           -t \"BPM=$BPM\"
-                           -t \"GENRE=$GENRE\"
-                           -- \"$filename\"`;
+      my $cmd = "vorbiscomment -w ".
+                "-t \"TITLE=$title\" ".
+                "-t \"ARTIST=$artist\" ".
+                "-t \"ALBUM=$album\" ".
+                "-t \"ALBUM ARTIST=$ALBUMARTIST\" ".
+                "-t \"DATE=$DATE\" ".
+                "-t \"COMMENT=$COMMENT\" ".
+                "-t \"COMPOSER=$COMPOSER\" ".
+                "-t \"PUBLISHER=$PUBLISHER\" ".
+                "-t \"TRACKNUMBER=$track\" ".
+                "-t \"DISCNUMBER=$DISCNUMBER\" ".
+                "-t \"BPM=$BPM\" ".
+                "-t \"GENRE=$GENRE\" ".
+                "-- \"$filename\" ";
+      `$cmd`;
    }
 }
 

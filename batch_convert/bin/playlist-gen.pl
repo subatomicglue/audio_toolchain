@@ -11,21 +11,15 @@ BEGIN
    # defaults
    $IN_FILES = "*.mp3";
    $M3U_PATH  = "playlist.m3u";
-   $BIN_PATH = dirname( abs_path($0) );
+   $BIN_PATH = dirname( abs_path($0) ); # script's directory
 
    sub defaults()
-   { return "in[$IN_FILES] out[$M3U_PATH] tools[$BIN_PATH]"; }
+   { return "in[$IN_FILES] out[$M3U_PATH] scriptdir[$BIN_PATH]"; }
 
    # command line can override defaults
    for (my $x = 0; $x < @ARGV; $x++)
    {
-      if ($ARGV[$x] eq "-tools")
-      {
-         $x++;
-         $BIN_PATH = $ARGV[$x];
-         $BIN_PATH =~ s/[\\\/]$//;
-      }
-      elsif ($ARGV[$x] eq "-i" || $ARGV[$x] eq "-in")
+      if ($ARGV[$x] eq "-i" || $ARGV[$x] eq "-in")
       {
          $x++;
          $IN_FILES = $ARGV[$x];
@@ -37,6 +31,8 @@ BEGIN
       }
       else
       {
+         print "Creates an m3u playlist";
+         print "";
          print "usage:\n";
          print " playlist-gen.pl -i \"$IN_FILES\" -o $M3U_PATH\n";
          print "\n";
@@ -113,8 +109,8 @@ foreach (@files)
    if ($ext =~ /flac/i)
    {
       # get running time for the file
-      my $samprate = `"$BIN_PATH/metaflac" --show-sample-rate -- "$filename"`;
-      my $samples = `"$BIN_PATH/metaflac" --show-total-samples -- "$filename"`;
+      my $samprate = `"metaflac" --show-sample-rate -- "$filename"`;
+      my $samples = `"metaflac" --show-total-samples -- "$filename"`;
       my $time = floor(0.5 + $samples / $samprate);
 
       # write playlist entry
@@ -126,7 +122,7 @@ foreach (@files)
    if ($ext =~ /ogg/i)
    {
       # get running time for the file
-      my $info = join( ";", `"$BIN_PATH/ogginfo" "$filename"` );
+      my $info = join( ";", `"ogginfo" "$filename"` );
       $info =~ /Playback length: ([^;]+)/;
       my $time = trim( $1 );
       $time =~ /(.*)m/;
@@ -144,7 +140,7 @@ foreach (@files)
    if ($ext =~ /wav/i)
    {
       # get running time for the wav file
-      my $secs = floor( `"$BIN_PATH/sox" --i -D "$filename"` );
+      my $secs = floor( `"sox" --i -D "$filename"` );
 
       # write playlist entry
       print PLAYLIST_M3U_FILE "#EXTINF:$secs,$artist - $title\n";

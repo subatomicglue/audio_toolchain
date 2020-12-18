@@ -22,3 +22,8 @@ tracks=(
 for i in "${tracks[@]}"; do
   sox -V -r 48000 -n -b 16 -c 2 "$i" synth 30 sin 1000 vol -6dB
 done
+
+echo "hello!" > README.txt
+
+convert -size 32x32 xc:white Folder.jpg
+

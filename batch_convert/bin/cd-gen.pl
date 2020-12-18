@@ -22,6 +22,8 @@ for (my $x = 0; $x < @ARGV; $x++)
    }
    else
    {
+      print "Generates a CDBurnerXP project file for burning a CD";
+      print "";
       print "usage:\n";
       print " cd-gen.pl -i \"$IN_FILES\" -o $AXP_PATH\n";
       print "\n";
