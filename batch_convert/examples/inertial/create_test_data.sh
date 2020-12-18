@@ -2,7 +2,7 @@
 
 # populate this directory with dummy data
 
-echo "Creating test audiotrack wav files:"
+echo ". . .\nCreating test audiotrack wav files:"
 tracks=(
   "subatomicglue - inertialdecay - 01 - hard.wav"
   "subatomicglue - inertialdecay - 02 - acidbass.wav"
@@ -23,9 +23,12 @@ for i in "${tracks[@]}"; do
   sox -V -r 48000 -n -b 16 -c 2 "$i" synth 30 sin 1000 vol -6dB
 done
 
-echo "Creating test README.txt"
-echo "hello!" > README.txt
-
-echo "Creating test Folder.jpg"
+echo ". . .\nCreating test Folder.jpg"
 convert -size 32x32 xc:white Folder.jpg
+
+echo ". . .\nCreating test README.txt"
+echo "hello world\n\n<tell us all about your album here>\n\nrun ../../bin/convert.sh to batch convert!" > README.txt
+
+echo ". . .\nContents of README.txt:"
+cat README.txt
 
