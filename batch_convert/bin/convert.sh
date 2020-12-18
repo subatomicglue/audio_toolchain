@@ -5,13 +5,10 @@
 # i.e.  subatomicglue - mantis - 01 - hard.wav
 # (we pad the tracknum for alphebetical dir listing...)
 
-########################################################################
-# CONFIGURATION (edit this!)
 OUTDIR="out"                # name of output directory
-BINDIR="../../bin"          # where the batch tools are installed
-########################################################################
 
-#PATH="$PATH";"$BINDIR"
+# this script's dir (and location of the other tools)
+BINDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 echo "Create an m3u playlist"
 $BINDIR/playlist-gen.pl -i "*.wav" -o ./playlist.m3u
