@@ -39,7 +39,6 @@ for (my $x = 0; $x < @ARGV; $x++)
       print " rip.pl -o $OUT_PATH -t $TYPE                 #all wav files in current dir\n";
       print " rip.pl -i \"*.wav\" -o mp3-rip -t $TYPE\n";
       print " rip.pl -i \"1.wav 2.wav\" -o ogg-rip -t $TYPE\n";
-      print '   -tools is the path to "lame" "flac" and "oggenc2-aoTuV" utilities'."\n";
       print "\n";
       print "Defaults:\n";
       print " ".defaults()."\n";
