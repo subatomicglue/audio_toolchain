@@ -53,6 +53,6 @@ cmd="$BINDIR/rename_audiotrack_to_shortnames.pl -i \"$OUTDIR-mp3/*.mp3\" -o \"$O
 echo $cmd
 eval $cmd
 cp ./*-*-*README.txt $dest/README.txt
-cp ./*.jpg "$OUTDIR-mp3-shortnames/"
+cp ./Folder.jpg "$OUTDIR-mp3-shortnames/"
 echo ". . . . . . . .  .  .   .   .  .  . . . . . ."
 
