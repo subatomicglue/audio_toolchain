@@ -66,7 +66,8 @@ foreach (@files)
    {
       # convert to MP3
       my $mp3name = $wavname;
-      $mp3name =~ s/\.wav$/.mp3/;
+      $mp3name =~ s/\.wav$/.mp3/;       # change file ext
+      $mp3name =~ s/^.*\/([^\/]+)$/$1/; # filename only (remove path)
       $mp3name = "$OUT_PATH/$mp3name";
       if (!-f $mp3name || ((stat($mp3name))[9] < (stat($wavname))[9]))
       {
@@ -82,6 +83,7 @@ foreach (@files)
       # convert to FLAC
       my $flacname = $wavname;
       $flacname =~ s/\.wav$/.flac/;
+      $flacname =~ s/^.*\/([^\/]+)$/$1/; # filename only (remove path)
       $flacname = "$OUT_PATH/$flacname";
       if (!-f $flacname || ((stat($flacname))[9] < (stat($wavname))[9]))
       {
@@ -97,6 +99,7 @@ foreach (@files)
       # convert to OGG
       my $oggname = $wavname;
       $oggname =~ s/\.wav$/.ogg/;
+      $oggname =~ s/^.*\/([^\/]+)$/$1/; # filename only (remove path)
       $oggname = "$OUT_PATH/$oggname";
       if (!-f $oggname || ((stat($oggname))[9] < (stat($wavname))[9]))
       {

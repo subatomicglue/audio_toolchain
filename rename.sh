@@ -63,7 +63,7 @@ for ((i = 0; i < ARGC; i++)); do
 done
 
 # output help if they're getting it wrong...
-if [[ $ARGC -eq 0 || ! $ARGC -ge $non_flag_args_required ]]; then
+if [ $non_flag_args_required -ne 0 ] && [[ $ARGC -eq 0 || ! $ARGC -ge $non_flag_args_required ]]; then
   [ $ARGC -gt 0 ] && echo "Expected $non_flag_args_required args, but only got $ARGC"
   usage
   exit -1

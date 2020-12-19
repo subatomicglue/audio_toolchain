@@ -72,7 +72,7 @@ for (let i = 2; i < (ARGC+2); i++) {
 }
 
 // output help if they're getting it wrong...
-if (ARGC == 0 || !(non_flag_args >= non_flag_args_required)) {
+if (non_flag_args_required != 0 && (ARGC == 0 || !(non_flag_args >= non_flag_args_required))) {
   (ARGC > 0) && console.log( `Expected ${non_flag_args_required} args, but only got ${non_flag_args}` );
   usage();
   process.exit( -1 );

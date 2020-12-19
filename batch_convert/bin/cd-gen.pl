@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 
+use File::Path;
+
 #defaults
 $IN_FILES = "*.wav";
 $AXP_PATH = "cd.axp";
@@ -51,7 +53,8 @@ sub trim($)
 my $AXP_FOLDER = $AXP_PATH;
 if ($AXP_FOLDER =~ s/[\\\/][^\\\/]+$//)
 {
-   mkpath( $AXP_FOLDER );
+  print "creating dir $AXP_FOLDER\n";
+  mkpath( $AXP_FOLDER );
 }
 open( CD_PROJECT_FILE, ">$AXP_PATH" );
 print CD_PROJECT_FILE '<?xml version="1.0" encoding="utf-8" standalone="yes"?>
