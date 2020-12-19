@@ -13,22 +13,22 @@ rm -rf $TEMPDIR   # clean out the tempdir
 #exit -1
 
 # we recorded using a monophonic mic... just throw out the right channel...
-IN_DIR=$OUT_DIR; OUT_DIR=src_mono
+IN_DIR=$OUT_DIR; OUT_DIR=1src_mono
 ./mono.sh --destdir $TEMPDIR/$OUT_DIR --mix left $IN_DIR/*aif
 $VERBOSE && read -p "Press any key..."
 
 # auto slice the source wavs which contain instrument samples separated by silence
-IN_DIR=$OUT_DIR; OUT_DIR=autosliced
-./slice.sh --destdir $TEMPDIR/$OUT_DIR $TEMPDIR/$IN_DIR/*.aif
+IN_DIR=$OUT_DIR; OUT_DIR=2autosliced
+./slice.sh --destdir $TEMPDIR/$OUT_DIR --thresh 0.1 $TEMPDIR/$IN_DIR/*.aif
 $VERBOSE && read -p "Press any key..."
 
 # rename sample files by their velocity
-IN_DIR=$OUT_DIR; OUT_DIR=renamed_vel
+IN_DIR=$OUT_DIR; OUT_DIR=3renamed_vel
 ./rename.sh --destdir $TEMPDIR/$OUT_DIR --type lvl $TEMPDIR/$IN_DIR/*/*.wav
 $VERBOSE && read -p "Press any key..."
 
 # normalize each sample to 0.99
-IN_DIR=$OUT_DIR; OUT_DIR=normalized
+IN_DIR=$OUT_DIR; OUT_DIR=4normalized
 ./normalize.sh --destdir $TEMPDIR/$OUT_DIR $TEMPDIR/$IN_DIR/*/*.wav
 $VERBOSE && read -p "Press any key..."
 
@@ -59,5 +59,5 @@ cp $TEMPDIR/$IN_DIR/drumkit.sf2 .
 cp -r $TEMPDIR/$IN_DIR/drumkit_sfz .
 
 # clean up, leave no evidence
-rm -rf $TEMPDIR
+#rm -rf $TEMPDIR
 

@@ -15,7 +15,7 @@ function usage
   echo "  $0 <in>          (in file: ./SD.aif)"
   echo "  $0 --help        (this help)"
   echo "  $0 --verbose     (output verbose information)"
-  echo "  $0 --thresh      (silence threshold, default: $thresh)"
+  echo "  $0 --thresh      (silence threshold % 1-100, default: $thresh)"
   echo "  $0 --destdir     (default '$dest_dir/')"
   echo ""
 }
@@ -82,6 +82,23 @@ fi
 # sox:
 # silence [ -l ] above_periods [ duration threshold[d|%] ] [ below_periods duration threshold[d|%] ]
 
+# The above-periods value is used to indicate if audio should be trimmed at the beginning of the audio. A value of zero indicates no silence should be trimmed from the beginning. When specifying an non-zero above-periods, it trims audio up until it finds non-silence.
+# e.g. 1 strips silence before the sound.   2 strips silence, sound, and then more silence (2 periods of silence and whatever was inbetween)
+#
+# When above-periods is non-zero, you must also specify a duration and threshold:
+#
+# Duration indicates the amount of time that non-silence must be detected before it stops trimming audio. By increasing the duration, burst of noise can be treated as silence and trimmed off.
+#
+# Threshold is used to indicate what sample value you should treat as silence. For digital audio, a value of 0 may be fine but for audio recorded from analog, you may wish to increase the value to account for background noise.
+#
+# When specifying duration, use a trailing zero for whole numbers of seconds (ie, 1.0 instead of 1 to specify 1 second). If you don’t, SoX assumes you’re specifying a number of samples.
+#
+# Use at 0.1% at a minimum for an audio threshold.
+# you can specify the threshold in decibels using d (such as -96d or -55d
+#
+# The realistic values for the above-period parameter are 0 and 1 and values for the below-period parameter are pretty much just -1 and 1.
+
+
 echo "================================"
 echo "SLICING to $outpath"
 echo "================================"
@@ -92,7 +109,7 @@ for infile in "${infiles[@]}"; do
 
   outfile="./$outpath/$filename/$filename - .wav"
   echo "Slicing:  \"$infile\" => \"$outfile\" "
-  sox "$infile" "$outfile" silence 1 0.1 1% 1 0.1 1% : newfile : restart
+  sox "$infile" "$outfile" silence 1 0.1 $thresh% 1 0.1 $thresh% : newfile : restart
 done
 
 
