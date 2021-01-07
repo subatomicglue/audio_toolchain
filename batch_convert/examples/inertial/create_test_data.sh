@@ -27,7 +27,7 @@ echo ". . .\nCreating test Folder.jpg"
 convert -size 32x32 xc:white Folder.jpg
 
 echo ". . .\nCreating test README.txt"
-echo "hello world\n\n<tell us all about your album here>\n\nrun ../../bin/convert.sh to batch convert!" > README.txt
+echo "hello world\n\n<tell us all about your album here>\n\nrun '../../bin/convert.sh . out' to batch convert!" > README.txt
 
 echo ". . .\nContents of README.txt:"
 cat README.txt
