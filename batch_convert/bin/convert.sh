@@ -89,7 +89,7 @@ function convert_audio_to_dir
   echo $cmd
   eval $cmd
 
-  cmd="$BINDIR/tag.pl -i \"$dest/*.$type\" -c \"$INDIR/tags.ini\""
+  cmd="$BINDIR/tag.pl -i \"$dest/*.$type\" -c \"$INDIR/tags.ini\" -a \"$INDIR/Folder.jpg\""
   echo $cmd
   eval $cmd
 

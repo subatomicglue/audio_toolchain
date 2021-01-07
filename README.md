@@ -69,7 +69,7 @@ brew install flac          # for metaflac as well
 brew install lame
 brew install vorbis-tools  # for oggenc, vorbiscomment
 brew install sox
-
+sudo pip install eyeD3     # for mp3 embeded album cover
 ```
 
 ## Windows

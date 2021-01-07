@@ -10,12 +10,13 @@ BEGIN
 
    # defaults
    $IN_FILES  = "";
+   $ALBUM_IMG  = "";
    $BIN_PATH = dirname( abs_path($0) ); # my script dir
    $TAGINI = "tags.ini";
    $CWD=$cwd;
 
    sub defaults()
-   { return "in[$IN_FILES] config[$TAGINI] scriptdir[$BIN_PATH]"; }
+   { return "in[$IN_FILES] config[$TAGINI] scriptdir[$BIN_PATH] album_image[$ALBUM_IMG]"; }
 
    # command line can override defaults
    for (my $x = 0; $x < @ARGV; $x++)
@@ -30,11 +31,16 @@ BEGIN
          $x++;
          $IN_FILES = $ARGV[$x];
       }
+      elsif ($ARGV[$x] eq "-a" || $ARGV[$x] eq "-album_image")
+      {
+         $x++;
+         $ALBUM_IMG = $ARGV[$x];
+      }
       else
       {
          print "usage:\n";
          print " tag.pl -i \"mp3-rip/*.mp3\" -c $TAGINI\n";
-         print " tag.pl -i \"mp3-rip/*.mp3 flac-rip/*.flac ogg-rip/*.ogg\" -c $TAGINI\n";
+         print " tag.pl -i \"mp3-rip/*.mp3 flac-rip/*.flac ogg-rip/*.ogg\" -c $TAGINI -a Folder.jpg\n";
          print "\n";
          print "defaults:\n";
          print " ".defaults()."\n";
@@ -130,7 +136,7 @@ foreach (@files)
 
          # iterate over the hash
          # process each frame
-         foreach $frame (keys %$frames) 
+         foreach $frame (keys %$frames)
          {
             # for each frame
             # get a key-value pair of content-description
@@ -154,6 +160,7 @@ foreach (@files)
       }
 
       # write id3v1
+      if (1)
       {
          # save track information
          $mp3->{ID3v1}->title($title);
@@ -167,6 +174,7 @@ foreach (@files)
       }
 
       # write id3v2
+      if (1)
       {
          setframe( $mp3->{ID3v2}, 'TALB', $album );         #album
          setframe( $mp3->{ID3v2}, 'TCON', $GENRE );         #genre
@@ -230,6 +238,28 @@ foreach (@files)
                 "-- \"$filename\" ";
       `$cmd`;
    }
-}
 
+   # add the album cover
+   #print (-f "$ALBUM_IMG") . " $ALBUM_IMG <<<--- \n";
+   if ($ext =~ /mp3/i && -f "$ALBUM_IMG")
+   {
+     # tag the mp3/m4a with the album art if present
+     my $cmd = "eyeD3 -Q --preserve-file-times --add-image=\"$ALBUM_IMG\":FRONT_COVER:\"Album cover\" \"$filename\"";
+     print $cmd . "\n";
+     `$cmd`;
+   }
+
+   # add the album cover
+   if ($ext =~ /m4a/i && -f $ALBUM_IMG)
+   {
+     print "================\n TODO: implement me for m4a\n=====================\n";
+
+     # todo:
+     #ffmpeg -i 'out-mp3/subatomicglue - inertialdecay - 01 - hard.mp3' -i  'out-mp3/Folder.jpg' -map 0:0 -map 1:0 -c:a copy -c:v copy -id3v2_version 3 -metadata:s:v title="Album cover" -metadata:s:v comment="Cover (front)" 'out-mp3/bok.mp3'
+
+     my $cmd = "ffmpeg -hide_banner -loglevel error -nostats -i '$filename' -i  '$ALBUM_IMG' -map_metadata 0 -map 0 -map 1 -c copy -acodec copy ___temp___237485972348953498573498.$ext; mv ___temp___237485972348953498573498.$ext '$filename'";
+     #print $cmd . "\n";
+     #`$cmd`;
+   }
+}
 
