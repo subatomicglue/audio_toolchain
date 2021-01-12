@@ -102,6 +102,7 @@ function convert_audio_to_dir
   echo ". . . . . . . .  .  .   .   .  .  . . . . . ."
 }
 
+convert_audio_to_dir "$OUTDIR-m4a" "m4a"
 convert_audio_to_dir "$OUTDIR-mp3" "mp3"
 convert_audio_to_dir "$OUTDIR-ogg" "ogg"
 convert_audio_to_dir "$OUTDIR-flac" "flac"

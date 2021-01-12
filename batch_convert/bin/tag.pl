@@ -239,27 +239,47 @@ foreach (@files)
       `$cmd`;
    }
 
-   # add the album cover
-   #print (-f "$ALBUM_IMG") . " $ALBUM_IMG <<<--- \n";
+   # tag M4A files
+   if ($ext =~ /m4a/i)
+   {
+      my $cmd = "AtomicParsley \"$filename\" ".
+                "--title \"$title\" ".
+                "--artist \"$artist\" ".
+                "--album \"$album\" ".
+                "--albumArtist \"$ALBUMARTIST\" ".
+                "--year \"$DATE\" ".
+                "--comment \"$COMMENT\" ".
+                "--description \"$COMMENT\" ".
+                "--longdesc \"Publisher: $PUBLISHER  URL: $URL\" ".
+                "--composer \"$COMPOSER\" ".
+                "--tracknum \"$track\" ".
+                "--disk \"$DISCNUMBER\" ".
+                "--bpm \"$BPM\" ".
+                "--genre \"$GENRE\" ".
+                "--copyright \"$COPYRIGHT\" ".
+                #"--encodingTool \"subatomiclabs batch tools (fdkaac or faac)\" ".
+                #"--encodedBy \"subatomiclabs\" ".
+                "--podcastURL \"$URL\" ".
+                "-o __temp2435789234759.m4a && mv __temp2435789234759.m4a \"$filename\"";
+      #print $cmd . "\n";
+      `$cmd`;
+   }
+
+   # add the album cover to mp3
    if ($ext =~ /mp3/i && -f "$ALBUM_IMG")
    {
      # tag the mp3/m4a with the album art if present
      my $cmd = "eyeD3 -Q --preserve-file-times --add-image=\"$ALBUM_IMG\":FRONT_COVER:\"Album cover\" \"$filename\"";
-     print $cmd . "\n";
+     #print $cmd . "\n";
      `$cmd`;
    }
 
-   # add the album cover
+   # add the album cover to m4a
    if ($ext =~ /m4a/i && -f $ALBUM_IMG)
    {
-     print "================\n TODO: implement me for m4a\n=====================\n";
-
-     # todo:
-     #ffmpeg -i 'out-mp3/subatomicglue - inertialdecay - 01 - hard.mp3' -i  'out-mp3/Folder.jpg' -map 0:0 -map 1:0 -c:a copy -c:v copy -id3v2_version 3 -metadata:s:v title="Album cover" -metadata:s:v comment="Cover (front)" 'out-mp3/bok.mp3'
-
-     my $cmd = "ffmpeg -hide_banner -loglevel error -nostats -i '$filename' -i  '$ALBUM_IMG' -map_metadata 0 -map 0 -map 1 -c copy -acodec copy ___temp___237485972348953498573498.$ext; mv ___temp___237485972348953498573498.$ext '$filename'";
+     my $cmd = "atomicparsley \"$filename\" -o __temp2435789234759.m4a --artwork '$ALBUM_IMG' && mv __temp2435789234759.m4a \"$filename\"";
      #print $cmd . "\n";
-     #`$cmd`;
+     `$cmd`;
    }
 }
 

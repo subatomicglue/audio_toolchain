@@ -65,11 +65,14 @@ brew install sox
 
 # needed for batch processing tools
 brew install perl
-brew install flac          # for metaflac as well
-brew install lame
-brew install vorbis-tools  # for oggenc, vorbiscomment
+brew install flac            # for flac, metaflac            (flac encoding)
+brew install lame            # for lame                       (mp3 encoding)
+brew install vorbis-tools    # for oggenc, vorbiscomment      (ogg encoding)
 brew install sox
-sudo pip install eyeD3     # for mp3 embeded album cover
+sudo pip install eyeD3       # for eyeD3                       (mp3 tagging)
+brew install fdk-aac-encoder # for fdkaac                     (m4a encoding)
+brew install faac            # for faac   (m4a encoding, fallback to fdkaac)
+brew install atomicparsley   # for AtomicParsley               (m4a tagging)
 ```
 
 ## Windows
