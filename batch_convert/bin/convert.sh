@@ -89,23 +89,23 @@ function convert_audio_to_dir
 {
   dest=$1
   type=$2
-  echo "============================================="
-  echo "Converting *.wav to $dest/ (type = $type)"
-  echo "============================================="
+  echo "\n\n===================================================================="
+  echo "[$type]  Converting *.wav to $dest/.$type"
+  echo "===================================================================="
 
   cmd="$BINDIR/rip.pl -i \"$INDIR/*.wav\" -o \"$dest\" -t $type"
-  echo $cmd
+  echo "\n[rip]\n$cmd"
   eval $cmd
 
   cmd="$BINDIR/tag.pl -i \"$dest/*.$type\" -c \"$INDIR/tags.ini\" -a \"$INDIR/Folder.jpg\""
-  echo $cmd
+  echo "\n[tag]\n$cmd"
   eval $cmd
 
   cmd="$BINDIR/playlist-gen.pl -i \"$dest/*.$type\" -o $dest/playlist.m3u"
-  echo $cmd
+  echo "\n[playlist-gen]\n$cmd"
   eval $cmd
 
-  echo "copy $INDIR/*.jpg $INDIR/*-*-*README.txt $dest\n"
+  echo "\n[copy]\ncopy $INDIR/*.jpg $INDIR/*-*-*README.txt $dest/\n"
   cp "$INDIR/"*.jpg "$INDIR/"*-*-*README.txt $dest/ || echo "file not found"
   echo ". . . . . . . .  .  .   .   .  .  . . . . . ."
 }
@@ -115,7 +115,7 @@ convert_audio_to_dir "$OUTDIR-mp3" "mp3"
 convert_audio_to_dir "$OUTDIR-ogg" "ogg"
 convert_audio_to_dir "$OUTDIR-flac" "flac"
 
-echo "============================================="
+echo "\n============================================="
 echo "Creating shortnames for $OUTDIR-mp3 (copying to $OUTDIR-mp3-shortnames)"
 echo "============================================="
 cmd="$BINDIR/rename_audiotrack_to_shortnames.pl -i \"$OUTDIR-mp3/*.mp3\" -o \"$OUTDIR-mp3-shortnames\""

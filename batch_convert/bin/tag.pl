@@ -52,8 +52,9 @@ BEGIN
 print "tag[".defaults()."\n";
 
 # include tag.ini
-require "$CWD/$TAGINI";
-print " ::$ALBUMARTIST $DATE $COMPOSER $PUBLISHER $GENRE $COPYRIGHT::\n";
+print "Reading: [$TAGINI]\n";
+require "$TAGINI";
+print " ::[ $ALBUMARTIST $DATE $COMPOSER $PUBLISHER $GENRE $COPYRIGHT ]::\n";
 
 # the audio files we want to auto-tag (flac/ogg/mp3 types)
 @files = glob( $IN_FILES );
@@ -236,6 +237,7 @@ foreach (@files)
                 "-t \"BPM=$BPM\" ".
                 "-t \"GENRE=$GENRE\" ".
                 "-- \"$filename\" ";
+      print $cmd . "\n\n";
       `$cmd`;
    }
 
