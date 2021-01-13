@@ -237,7 +237,7 @@ foreach (@files)
                 "-t \"BPM=$BPM\" ".
                 "-t \"GENRE=$GENRE\" ".
                 "-- \"$filename\" ";
-      print $cmd . "\n\n";
+      #print $cmd . "\n\n";
       `$cmd`;
    }
 
