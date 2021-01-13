@@ -261,16 +261,13 @@ foreach (@files)
                 #"--encodedBy \"subatomiclabs\" ".
                 "--podcastURL \"$URL\" ".
                 "-o __temp2435789234759.m4a && mv __temp2435789234759.m4a \"$filename\"";
-      #print $cmd . "\n";
       `$cmd`;
    }
 
    # add the album cover to mp3
    if ($ext =~ /mp3/i && -f "$ALBUM_IMG")
    {
-     # tag the mp3/m4a with the album art if present
      my $cmd = "eyeD3 -Q --preserve-file-times --add-image=\"$ALBUM_IMG\":FRONT_COVER:\"Album cover\" \"$filename\"";
-     #print $cmd . "\n";
      `$cmd`;
    }
 
@@ -278,8 +275,23 @@ foreach (@files)
    if ($ext =~ /m4a/i && -f $ALBUM_IMG)
    {
      my $cmd = "atomicparsley \"$filename\" -o __temp2435789234759.m4a --artwork '$ALBUM_IMG' && mv __temp2435789234759.m4a \"$filename\"";
+     `$cmd`;
+   }
+
+   # add the album cover to flac
+   if ($ext =~ /flac/i && -f "$ALBUM_IMG")
+   {
+     my $cmd = "metaflac --import-picture-from=\"$ALBUM_IMG\" \"$filename\"";
+     `$cmd`;
+   }
+
+   # add the album cover to ogg
+   if ($ext =~ /ogg/i && -f "$ALBUM_IMG")
+   {
+     my $cmd = "$BIN_PATH/ogg-cover-art.sh \"$ALBUM_IMG\" \"$filename\" > /dev/null 2>&1";
      #print $cmd . "\n";
      `$cmd`;
    }
+
 }
 
