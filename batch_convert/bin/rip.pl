@@ -108,7 +108,17 @@ foreach (@files)
             # Note that faac will by default wrap AAC data in an MP4 container for output files with the extensions .mp4 and .m4a.
 
             # --artist "%a" --album "%b" --title "%t" --genre "%g" --year "%y" --track "%tn"
-            my $cmd = "faac \"$wavname\" -o \"$newname\" -q 150 -b 160 --overwrite";
+            #my $cmd = "faac \"$wavname\" -o \"$newname\" -b 160 --overwrite"; # CBR mode with (ABR=160)
+            my $cmd = "faac \"$wavname\" -o \"$newname\" -q 150 --overwrite"; # VBR mode with (ABR=175)
+            print $cmd . "\n";
+            `$cmd`;
+         }
+
+         # use AppleMusic/iTunes encoder
+         elsif (`which afconvert`) {
+            print "TODO: implement afconvert encoder!\n";
+
+            my $cmd = "afconvert --help";
             print $cmd . "\n";
             `$cmd`;
          }
