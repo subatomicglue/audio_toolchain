@@ -66,8 +66,9 @@ sub trim($)
 
 # gen some playlists for each converted set...
 my $M3U_FOLDER = $M3U_PATH;
-if ($M3U_FOLDER =~ s/[\\\/][^\\\/]+$//)
+if ($M3U_FOLDER =~ s/[\\\/][^\\\/]+$// && !-d "$M3U_FOLDER")
 {
+  print "creating dir '$M3U_FOLDER'\n";
    mkpath( $M3U_FOLDER );
 }
 open( PLAYLIST_M3U_FILE, ">$M3U_PATH" );

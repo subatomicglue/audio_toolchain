@@ -58,6 +58,9 @@ for ((i = 0; i < ARGC; i++)); do
   fi
   if [ $non_flag_args -eq 2 ]; then
     OUTDIR=${ARGV[$i]}
+    if [[ $OUTDIR == "." || $OUTDIR == ".." ]]; then
+      OUTDIR="out"
+    fi
     $VERBOSE && echo "Parsing Args: Changing out dir prefix to '$OUTDIR'"
   fi
 done
@@ -69,6 +72,11 @@ if [ $non_flag_args_required -ne 0 ] && [[ $ARGC -eq 0 || ! $ARGC -ge $non_flag_
   exit -1
 fi
 ################################
+
+echo "=================================="
+echo "Audio Batch Convert - subatomiclabs"
+echo "Input[$INDIR] Output[$OUTDIR]"
+echo "=================================="
 
 echo "Create an m3u playlist"
 "$BINDIR/playlist-gen.pl" -i "$INDIR/*.wav" -o "$INDIR/playlist.m3u"

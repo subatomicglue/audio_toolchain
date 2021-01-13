@@ -51,7 +51,7 @@ sub trim($)
 
 # gen some playlists for each converted set...
 my $AXP_FOLDER = $AXP_PATH;
-if ($AXP_FOLDER =~ s/[\\\/][^\\\/]+$//)
+if ($AXP_FOLDER =~ s/[\\\/][^\\\/]+$// && !-d "$AXP_FOLDER")
 {
   print "creating dir $AXP_FOLDER\n";
   mkpath( $AXP_FOLDER );
