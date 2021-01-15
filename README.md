@@ -73,6 +73,8 @@ sudo pip install eyeD3       # for eyeD3                       (mp3 tagging)
 brew install fdk-aac-encoder # for fdkaac                     (m4a encoding)
 brew install faac            # for faac   (m4a encoding, fallback to fdkaac)
 brew install atomicparsley   # for AtomicParsley               (m4a tagging)
+brew install imagemagick     # for convert            (to resize folder art)
+brew install sip             # for image stats                (width/height)
 ```
 
 ## Windows
