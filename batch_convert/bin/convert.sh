@@ -97,7 +97,17 @@ function convert_audio_to_dir
   echo "\n[rip]\n$cmd"
   eval $cmd
 
-  cmd="$BINDIR/tag.pl -i \"$dest/*.$type\" -c \"$INDIR/tags.ini\" -a \"$INDIR/Folder.jpg\""
+  echo "\n[copy]\ncopy $INDIR/*.jpg $INDIR/*-*-*README.txt $dest/\n"
+  cp "$INDIR/"*.jpg "$INDIR/"*-*-*README.txt $dest/ || echo "file not found"
+
+  if [ -f "$INDIR/Folder.jpg" ]; then
+    # NOTE: AtomicParsley SEGFAULTS if the jpg resolution (DPI) is 300, install_folder_image makes the image square AND knocks down the DPI to 72...
+    cmd="$BINDIR/install_folder_image.sh --max_dimension 500 \"$INDIR/Folder.jpg\" \"$dest/Folder.jpg\""
+    echo "\n[install/resize folder.jpg image]\n$cmd"
+    eval $cmd
+  fi
+
+  cmd="$BINDIR/tag.pl -i \"$dest/*.$type\" -c \"$INDIR/tags.ini\" -a \"$dest/Folder.jpg\""
   echo "\n[tag]\n$cmd"
   eval $cmd
 
@@ -105,8 +115,6 @@ function convert_audio_to_dir
   echo "\n[playlist-gen]\n$cmd"
   eval $cmd
 
-  echo "\n[copy]\ncopy $INDIR/*.jpg $INDIR/*-*-*README.txt $dest/\n"
-  cp "$INDIR/"*.jpg "$INDIR/"*-*-*README.txt $dest/ || echo "file not found"
   echo ". . . . . . . .  .  .   .   .  .  . . . . . ."
 }
 
