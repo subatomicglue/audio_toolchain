@@ -7,7 +7,7 @@ if [ -z ${actions+"bok"} ]; then
   echo ''
   echo 'SRCDIR="<path-to>/subatomicglue/wav"'
   echo 'DSTDIR="<path-to>/subatomicglue/wav_generated"'
-  echo 'SCRIPTDIR="<path-to>/audio_toolchain/batch_convert/bin"'
+  echo 'SCRIPTDIR="'`pwd`'" # TODO: use $HOME instead of hardcoding'
   echo ''
   echo '# add jobs here:'
   echo 'actions=('
