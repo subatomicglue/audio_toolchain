@@ -244,7 +244,8 @@ foreach (@files)
    # tag M4A files
    if ($ext =~ /m4a/i)
    {
-      my $cmd = "AtomicParsley \"$filename\" ".
+      my $cmd = "tmp_dir=\$(mktemp -d -t __temp2435789234759) && ".
+                "AtomicParsley \"$filename\" ".
                 "--title \"$title\" ".
                 "--artist \"$artist\" ".
                 "--album \"$album\" ".
@@ -262,7 +263,8 @@ foreach (@files)
                 #"--encodingTool \"subatomiclabs batch tools (fdkaac or faac)\" ".
                 #"--encodedBy \"subatomiclabs\" ".
                 "--podcastURL \"$URL\" ".
-                "-o __temp2435789234759.m4a && mv __temp2435789234759.m4a \"$filename\"";
+                "-o \"\$tmp_dir/__temp2435789234759.m4a\" && mv \"\$tmp_dir/__temp2435789234759.m4a\" \"$filename\" ".
+                "; rm -rf \${tmp_dir}";
       `$cmd`;
    }
 

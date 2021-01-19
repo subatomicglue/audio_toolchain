@@ -25,6 +25,7 @@ args=()
 VERBOSE=true
 GEN=false
 FORCE=false
+TMPDIR="$HOME/Downloads"
 
 ################################
 # scan command line args:
@@ -97,6 +98,7 @@ fi
 echo "=================================="
 echo "Music Catalog - subatomiclabs"
 echo "=================================="
+TMPDIR="${TMPDIR}/__subatomic_encode"  # we will delete this dir later.
 
 function sanitycheck
 {
@@ -126,6 +128,7 @@ function sanitycheck
     exit -1
   fi
 }
+
 
 # when forcing, clean DEST dirs out
 if [[ $GEN == true && $FORCE == true ]]; then
@@ -163,21 +166,24 @@ fi
 
 # run the jobs
 [ ! -d "$DSTDIR" ] && echo "Creating directory: $DSTDIR" && mkdir -p "$DSTDIR"
+[ ! -d "$TMPDIR" ] && echo "Creating directory: $TMPDIR" && mkdir -p "$TMPDIR"
 for action in "${actions[@]}"
 do
   #echo "action string:  '$action'"
   CMD=`echo "$action" | cut -d ";" -f 1`
   SRC=`echo "$action" | cut -d ";" -f 2`
   DEST=`echo "$action" | cut -d ";" -f 3`
+  PREFIX=`echo "$DEST" | sed -e "s/^.\+\///"`
+  DEST_NO_PREFIX=`echo "$DEST" | sed -e "s/\/[^/]\+$//"`
 
   sanitycheck "$SRC" "$DEST" "$action"
 
   echo "[ACTION] cmd:'$CMD' src:'$SRC' dst:'$DEST'"
-  [[ $GEN == true && "$CMD" == "convert" ]] && [[ ! -d "$DEST-m4a" ]] && "$SCRIPTDIR/convert.sh" "$SRC" "$DEST"
+  [[ $GEN == true && "$CMD" == "convert" ]] && [[ ! -d "$DEST-m4a" ]] && mkdir -p "$DEST_NO_PREFIX" && echo "Pulling src data to ${TMPDIR}/${PREFIX}-wav" && cp -r "$SRC" "${TMPDIR}/${PREFIX}-wav" && "$SCRIPTDIR/convert.sh" "${TMPDIR}/${PREFIX}-wav" "${TMPDIR}/$PREFIX" && echo "Removing temporary wav data from ${TMPDIR}/${PREFIX}-wav" && rm -rf "${TMPDIR}/${PREFIX}-wav" && echo "Moving data from $TMPDIR/${PREFIX}-* to $DEST_NO_PREFIX/" && mv "${TMPDIR}/${PREFIX}-"* "$DEST_NO_PREFIX/"
   [[ $GEN == true && "$CMD" == "copy" ]] && [[ ! -d "$DEST" ]] && echo "copying $SRC to $DEST" && cp -r "$SRC" "$DEST"
 done
 
 [ $GEN == false ] && echo "use --gen to run the jobs above (generates encoded files)"
 [[ $GEN == true && $FORCE == false ]] && echo "use --force to clean out destinations, before running jobs"
-
+rm -rf "$TMPDIR"
 
