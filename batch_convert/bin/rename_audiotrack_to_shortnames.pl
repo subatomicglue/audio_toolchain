@@ -65,7 +65,7 @@ foreach (@files)
    # convert to MP3
    my $local_filename = $mp3name;
    $local_filename =~ s/^.+[\\\/]//; # remove entire path prefix including last /
-   $local_filename =~ /^([^-]+[^\s])\s*-\s*([^-]+[^\s])\s*-\s*([^-]+[^\s])\s*-\s*([^.]+[^\s])\.([^\.]+)$/; # parse the track info
+   $local_filename =~ /^([^-]+[^\s])\s*-\s*([^-]+[^\s])\s*-\s*([^-]+[^\s])\s*-\s*(.+[^\s])\.([^\.]+)$/; # parse the track info
    my $title = $4;
    my $album = $2;
    my $track = $3;
