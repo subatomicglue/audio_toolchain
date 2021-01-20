@@ -263,8 +263,8 @@ foreach (@files)
                 #"--encodingTool \"subatomiclabs batch tools (fdkaac or faac)\" ".
                 #"--encodedBy \"subatomiclabs\" ".
                 "--podcastURL \"$URL\" ".
-                "-o \"\$tmp_dir/__temp2435789234759.m4a\" && mv \"\$tmp_dir/__temp2435789234759.m4a\" \"$filename\" ".
-                "; rm -rf \${tmp_dir}";
+                #"--overwrite"
+                "-o \"\$tmp_dir/__temp2435789234759.m4a\" && mv \"\$tmp_dir/__temp2435789234759.m4a\" \"$filename\"; rm -rf \"\${tmp_dir}\"";
       `$cmd`;
    }
 
@@ -278,7 +278,11 @@ foreach (@files)
    # add the album cover to m4a
    if ($ext =~ /m4a/i && -f $ALBUM_IMG)
    {
-     my $cmd = "atomicparsley \"$filename\" -o __temp2435789234759.m4a --artwork '$ALBUM_IMG' && mv __temp2435789234759.m4a \"$filename\"";
+     my $cmd = "tmp_dir=\$(mktemp -d -t __temp2435789234759) && ".
+               "AtomicParsley \"$filename\" ".
+               "--artwork '$ALBUM_IMG' ".
+               #"--overwrite".
+               "-o \"\$tmp_dir/__temp2435789234759.m4a\" && mv \"\$tmp_dir/__temp2435789234759.m4a\" \"$filename\"; rm -rf \"\${tmp_dir}\"";
      `$cmd`;
    }
 

@@ -142,7 +142,7 @@ if [[ $GEN == true && $FORCE == true ]]; then
     sanitycheck "$SRC" "$DEST" "$action"
 
     # if the destination exists
-    if [[ -d "$DEST" ]]; then
+    #if [[ -d "$DEST" ]]; then  # breaks because -mp3 -m4a, etc...
       # remove...
       if [[ "$CMD" == "convert" && $FORCE == true ]]; then
         echo ""
@@ -152,7 +152,7 @@ if [[ $GEN == true && $FORCE == true ]]; then
         [ "$key" != "s" ] && read -rsp $'Look ok?  Press any key to DELETE THIS DATA... (s to skip this prompt)\n' -n1 key
         eval $cmd
       fi
-      if [[ "$CMD" == "copy" && $FORCE == true ]]; then
+      if [[ "$CMD" == "copy" && $FORCE == true && -d "$DEST" ]]; then
         echo ""
         echo "removing '$DEST'"
         cmd="rm -r \"$DEST\""
@@ -160,7 +160,7 @@ if [[ $GEN == true && $FORCE == true ]]; then
         [ "$key" != "s" ] && read -rsp $'Look ok?  Press any key to DELETE THIS DATA... (s to skip this prompt)\n' -n1 key
         eval $cmd
       fi
-    fi
+    #fi
   done
 fi
 
