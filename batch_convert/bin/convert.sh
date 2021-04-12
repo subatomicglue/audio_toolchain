@@ -100,7 +100,7 @@ function convert_audio_to_dir
   echo "\n[copy]\ncopy $INDIR/*.jpg $INDIR/*readme.txt $dest/\n"
   #shopt -s nocaseglob
   # without changing the shell: [rR][eE][aA][dD][mM][eE]
-  cp "$INDIR/"*.[jJ][pP][gG] "$INDIR/"*[rR][eE][aA][dD][mM][eE].txt "$dest/" || echo "file not found"
+  cp "$INDIR/"*.[pP][nN][gG] "$INDIR/"*.[jJ][pP][gG] "$INDIR/"*[rR][eE][aA][dD][mM][eE].txt "$dest/" || echo "file not found"
   #shopt -u nocaseglob
 
   if [ -f "$INDIR/Folder.jpg" ]; then
