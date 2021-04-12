@@ -101,6 +101,7 @@ foreach (@files)
    my $artist = $1;
    my $ext = $5;
    print "File[$filename]: title[$title] album[$album] track[$track] artist[$artist]\n";
+   #print "\"$COMMENT\"\n";
 
    # tag MP3 files
    if ($ext =~ /mp3/i)
