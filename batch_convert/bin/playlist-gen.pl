@@ -147,6 +147,18 @@ foreach (@files)
       print PLAYLIST_M3U_FILE "#EXTINF:$secs,$artist - $title\n";
       print PLAYLIST_M3U_FILE "$local_filename\n";
    }
+
+   # for m4a files
+   if ($ext =~ /m4a/i)
+   {
+      # get running time for the wav file
+      my $secs = 69;
+
+      # write playlist entry
+      print PLAYLIST_M3U_FILE "#EXTINF:$secs,$artist - $title\n";
+      print PLAYLIST_M3U_FILE "$local_filename\n";
+   }
+
 }
 
 close( PLAYLIST_M3U_FILE );
