@@ -115,10 +115,17 @@ function sanitycheck
     echo "[ABORT]  SCARY! SRC == DEST.  We could have deleted/corrupted your SOURCE!\n   \"$SRC\" == \"$DEST\""
     exit -1
   fi
+
   if [[ ! -d "$SRC" ]]; then
     echo "[ABORT]  Your source dir doesn't exist:\n   \"$SRC\""
     exit -1
   fi
+  local parent="$(dirname "$DEST")"
+  if [[ ! -d "$parent" ]]; then
+    echo "[ABORT]  Parent dir '$parent' doesn't exist!  (is it mounted?)\n     => We're trying to copy '$SRC' to '$DEST'\n   \"$action\""
+    exit -1
+  fi
+
   if [[ "$SRC" == "" ]]; then
     echo "[ABORT]  Your src dir is empty, check the action:\n   \"$action\""
     exit -1
