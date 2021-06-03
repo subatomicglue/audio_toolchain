@@ -195,14 +195,16 @@ subatomicglue - inertialdecay.jpg
 
 ## Catalog of Albums
 You'll supply:
- - Multiple single albums (see above)
- - a `catalog.sh` file, with an array of commands to generate your albums
+ - Multiple single albums in WAV format (see above for naming structure)
+ - a [catalog.sh](batch_convert/examples/catalog.sh) file, with an `actions` block containing the list of albums to convert
 ```
 $ git clone audio_toolchain
 $ cd audio_toolchain
-$ ./depends.sh   # verify you have all the dependencies needed to run these scripts
+$ ./depends.sh     # verify you have all the dependencies needed to run these scripts
 $ cd batch_convert/examples
-$ cat catalog.sh # copy this file to your music catalog, edit the actions for your albums
+
+
+$ cat catalog.sh   # you'll copy this file to your music catalog, edit the actions for your albums
 #!/bin/bash
 
 SRCDIR="`pwd`"
@@ -219,7 +221,8 @@ actions=(
 
 source "$SCRIPTDIR/catalog_base.sh"
 
-$ ./catalog.sh --gen  # generate flac|ogg|m4a|mp3 versions of all your albums
+
+$ ./catalog.sh --gen  # generate flac|ogg|m4a|mp3 versions of the albums listed in [catalog.sh](batch_convert/examples/catalog.sh)
 $ ls generated/
 .                       crunchy-ogg             selling-flac            spinning-m4a
 ..                      inertial-flac           selling-m4a             spinning-mp3
