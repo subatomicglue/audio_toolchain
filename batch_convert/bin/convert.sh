@@ -22,7 +22,7 @@ VERBOSE=true
 # scan command line args:
 function usage
 {
-  echo "$0 convert an album folder to mp3/flac/ogg for distribution"
+  echo "$0 convert an album folder to mp3/m4a/flac/ogg for distribution"
   echo "Usage:"
   echo "  $0 <indir> <outdir> (input/output directory, default is \"$INDIR\", and \"$OUTDIR\")"
   echo "  $0 --help        (this help)"
