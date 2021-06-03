@@ -13,6 +13,9 @@ Here are some command line tools I use for audio processing.
       - uses `sox` to isolate the left or right channels, or mix them
     - [normalize.sh](normalize.sh) normalize the level of audio files
       - uses `sox` to normalize the sound level
+    - [max_lvl.sh](max_lvl.sh) output the max level found in the audio file
+    - [peak_dB.sh](peak_dB.sh) output the peak db found in the audio file
+    - [samples.sh](samples.sh) output the number of samples found in the audio file
     - [sfz.js](sfz.js) command line script to create a .sfz sampler instrument bank
     - [sfz_to_sf2.sh](sfz_to_sf2.sh) and [sf2_to_sfz.sh](sf2_to_sfz.sh) command line scripts to convert between sf2 and sfz sampler formats.
       - uses `polyphone` to do the conversion
@@ -77,9 +80,149 @@ brew install imagemagick     # for convert            (to resize folder art)
 brew install sip             # for image stats                (width/height)
 ```
 
+*troubleshooting*  try running `./depend.sh` to verify you have all dependencies
+
 ## Windows
 *CONTRIBUTE!*  Feel free to contribute instructions for other platforms. :-)
 
 ## Linux
 *CONTRIBUTE!*  Feel free to contribute instructions for other platforms. :-)
+
+# HOWTO - Sampler Auto Slicing
+```
+$ git clone audio_toolchain
+$ cd audio_toolchain
+$ ./depends.sh   # verify you have all the dependencies needed to run these scripts
+
+...   record a drumset into WAV files, into the src directory  ...
+
+$ ls ./src
+BD 2ft damped.aif
+BD 2ft ringing.aif
+BD 3in damped.aif
+BD 3in ringing.aif
+HH Bell.aif
+HH Closed.aif
+HH Foot.aif
+HH Open.aif
+HT.aif
+LT.aif
+MT.aif
+Open Snare.aif
+Ride - Zildian 17_ Projection Crash (Custom A) - Stick Tip to Cym Edge.aif
+SD.aif
+Zildian Special Dry Crash (Custom K) - Stick Edge to Cym Edge.aif
+Zildian Special Dry Crash (Custom K) Stick Tip to Cym Edge.aif
+
+$ ./go
+```
+
+# HOWTO - Album conversion from WAV to various flac|ogg|mp3|m4a
+
+## Single album:
+You'll supply:
+ - a directory full of WAV files, one per track of your album
+ - `tags.ini` file with extra metadata tags information (like copyright)
+ - `Folder.jpg` image representing the album, typically square image 500x500
+ - all files conforming to the naming convention `bandname - albumname - tracknum - trackname.wav`
+
+```
+$ git clone audio_toolchain
+$ cd audio_toolchain
+$ ./depends.sh   # verify you have all the dependencies needed to run these scripts
+$ cd batch_convert/examples/inertial
+
+$ ./create_test_data.sh  #  generate some typical test files
+$ ls
+Folder.jpg
+subatomicglue - inertialdecay - 01 - hard.wav
+subatomicglue - inertialdecay - 02 - acidbass.wav
+subatomicglue - inertialdecay - 03 - cause.of.a.new.dark.age.wav
+subatomicglue - inertialdecay - README.txt
+subatomicglue - inertialdecay.jpg
+tags.ini
+
+$ ../../bin/convert.sh . out
+
+$ ls out*
+out-flac:
+.
+..
+Folder.jpg
+playlist.m3u
+subatomicglue - inertialdecay - 01 - hard.flac
+subatomicglue - inertialdecay - 02 - acidbass.flac
+subatomicglue - inertialdecay - 03 - cause.of.a.new.dark.age.flac
+subatomicglue - inertialdecay - README.txt
+subatomicglue - inertialdecay.jpg
+
+out-m4a:
+.
+..
+Folder.jpg
+playlist.m3u
+subatomicglue - inertialdecay - 01 - hard.m4a
+subatomicglue - inertialdecay - 02 - acidbass.m4a
+subatomicglue - inertialdecay - 03 - cause.of.a.new.dark.age.m4a
+subatomicglue - inertialdecay - README.txt
+subatomicglue - inertialdecay.jpg
+
+out-mp3:
+.
+..
+Folder.jpg
+playlist.m3u
+subatomicglue - inertialdecay - 01 - hard.mp3
+subatomicglue - inertialdecay - 02 - acidbass.mp3
+subatomicglue - inertialdecay - 03 - cause.of.a.new.dark.age.mp3
+subatomicglue - inertialdecay - README.txt
+subatomicglue - inertialdecay.jpg
+
+out-ogg:
+.
+..
+Folder.jpg
+playlist.m3u
+subatomicglue - inertialdecay - 01 - hard.ogg
+subatomicglue - inertialdecay - 02 - acidbass.ogg
+subatomicglue - inertialdecay - 03 - cause.of.a.new.dark.age.ogg
+subatomicglue - inertialdecay - README.txt
+subatomicglue - inertialdecay.jpg
+```
+
+## Catalog of Albums
+You'll supply:
+ - Multiple single albums (see above)
+ - a `catalog.sh` file, with an array of commands to generate your albums
+```
+$ git clone audio_toolchain
+$ cd audio_toolchain
+$ ./depends.sh   # verify you have all the dependencies needed to run these scripts
+$ cd batch_convert/examples
+$ cat catalog.sh # copy this file to your music catalog, edit the actions for your albums
+#!/bin/bash
+
+SRCDIR="`pwd`"
+DSTDIR="`pwd`/generated"
+SCRIPTDIR="`pwd`/../bin"
+
+# add jobs here:
+actions=(
+  "convert;$SRCDIR/crunchy;$DSTDIR/crunchy"
+  "convert;$SRCDIR/inertial;$DSTDIR/inertial"
+  "convert;$SRCDIR/selling;$DSTDIR/selling"
+  "convert;$SRCDIR/spinning;$DSTDIR/spinning"
+)
+
+source "$SCRIPTDIR/catalog_base.sh"
+
+$ ./catalog.sh --gen  # generate flac|ogg|m4a|mp3 versions of all your albums
+$ ls generated/
+.                       crunchy-ogg             selling-flac            spinning-m4a
+..                      inertial-flac           selling-m4a             spinning-mp3
+crunchy-flac            inertial-m4a            selling-mp3             spinning-mp3-shortnames
+crunchy-m4a             inertial-mp3            selling-mp3-shortnames  spinning-ogg
+crunchy-mp3             inertial-mp3-shortnames selling-ogg
+crunchy-mp3-shortnames  inertial-ogg            spinning-flac
+```
 
