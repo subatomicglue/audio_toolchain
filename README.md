@@ -24,25 +24,28 @@ Here are some command line tools I use for audio processing.
 
 ## Music Album Batch Conversion
   - I use these scripts to auto convert my albums of raw uncompressed .wav files to distributable mp3/ogg/flac with playlists.
-  - every album has a folder with .wav for each track of the album, plus [tags.ini](batch_convert/examples/selling/tags.ini) plus [update.pl](batch_convert/examples/selling/update.pl)
-  - For each compressed output format, update.pl calls:
-    - [rip.pl](batch_convert/bin/rip.pl) (converts .wav to dest compressed format)
-      - supports conversion from wav to mp3/flac/ogg
-        - use `lame` for wav to *mp3*
-        - use `flac` for wav to *flac*
-        - use `oggenc` for wav to *ogg* (mid 2000's I was using oggenc2-aoTuV)
-    - [tag.pl](batch_convert/bin/tag.pl) (meta-tags the compressed files)
-      - frontend for editing tags in compressed files (ogg/mp3/flac)
-        - use perl's MP3::Tag for *mp3* tagging
-          - use `lame --help` to generate text for TENC metatag (name of encoder)
-        - use `metaflac` for *flac* tagging
-        - use `vorbiscomment` for *ogg* tagging
-    - [playlist-gen.pl](batch_convert/bin/playlist-gen.pl) (outputs .m3u playlist file for the output set of compressed files)
-      - fills in running times by analysing the files
-        - use `metaflac` to get running time for *flac* files
-        - use `ogginfo` to get running time for *ogg* files
-        - use `MP3::Tag` perl module to get running time for *mp3* files
-        - use `sox` to get running time for *wav* files
+  - every album has a folder with .wav for each track of the album, plus [tags.ini](batch_convert/examples/selling/tags.ini)
+  - The main utilities:
+    - [convert.sh](batch_convert/bin/convert.sh) convert a single album folder to mp3/m4a/flac/ogg for distribution
+      - [rip.pl](batch_convert/bin/rip.pl) (converts .wav to dest compressed format)
+        - supports conversion from wav to mp3/m4a/flac/ogg
+          - use `lame` for wav to *mp3*
+          - use `flac` for wav to *flac*
+          - use `oggenc` for wav to *ogg* (mid 2000's I was using oggenc2-aoTuV)
+      - [tag.pl](batch_convert/bin/tag.pl) (meta-tags the compressed files)
+        - frontend for editing tags in compressed files (ogg/mp3/flac)
+          - use perl's MP3::Tag for *mp3* tagging
+            - use `lame --help` to generate text for TENC metatag (name of encoder)
+          - use `metaflac` for *flac* tagging
+          - use `vorbiscomment` for *ogg* tagging
+      - [playlist-gen.pl](batch_convert/bin/playlist-gen.pl) (outputs .m3u playlist file for the output set of compressed files)
+        - fills in running times by analysing the files
+          - use `metaflac` to get running time for *flac* files
+          - use `ogginfo` to get running time for *ogg* files
+          - use `MP3::Tag` perl module to get running time for *mp3* files
+          - use `sox` to get running time for *wav* files
+    - [catalog_base.sh](batch_convert/bin/catalog_base.sh) to be included by your [catalog.sh](batch_convert/examples/catalog.sh)  maintain a music catalog.  convert many album folders to mp3/flac/ogg/m4a for distribution
+      - [convert.sh](batch_convert/bin/convert.sh) calls convert for each album folder listed in the `actions` section of [catalog.sh](batch_convert/examples/catalog.sh)
 
 
 # Setup
