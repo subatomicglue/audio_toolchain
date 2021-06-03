@@ -222,7 +222,7 @@ actions=(
 source "$SCRIPTDIR/catalog_base.sh"
 
 
-$ ./catalog.sh --gen  # generate flac|ogg|m4a|mp3 versions of the albums listed in [catalog.sh](batch_convert/examples/catalog.sh)
+$ ./catalog.sh --gen  # generate flac|ogg|m4a|mp3 versions of the albums listed in catalog.sh
 $ ls generated/
 .                       crunchy-ogg             selling-flac            spinning-m4a
 ..                      inertial-flac           selling-m4a             spinning-mp3
