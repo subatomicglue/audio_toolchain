@@ -97,11 +97,15 @@ function convert_audio_to_dir
   echo "\n[rip]\n$cmd"
   eval $cmd
 
-  echo "\n[copy]\ncopy $INDIR/*.jpg $INDIR/*readme.txt $dest/\n"
-  #shopt -s nocaseglob
-  # without changing the shell: [rR][eE][aA][dD][mM][eE]
-  cp "$INDIR/"*.[pP][nN][gG] "$INDIR/"*.[jJ][pP][gG] "$INDIR/"*[rR][eE][aA][dD][mM][eE].txt "$dest/" || echo "file not found"
-  #shopt -u nocaseglob
+  echo "\n[copy]\ncopy $INDIR/*.{jpg|gif|png} $INDIR/*readme.txt $dest/\n"
+  local restore_nullglob=$(shopt -p nullglob)
+  local restore_nocaseglob=$(shopt -p nocaseglob)
+  shopt -s nullglob
+  shopt -s nocaseglob
+  # fyi: without changing the shell: [rR][eE][aA][dD][mM][eE]
+  cp "$INDIR/"*.png "$INDIR/"*.jpg "$INDIR/"*.gif "$INDIR/"*README.txt "$dest/" || echo "file not found"
+  eval "$restore_nullglob"
+  eval "$restore_nocaseglob"
 
   if [ -f "$INDIR/Folder.jpg" ]; then
     # NOTE: AtomicParsley SEGFAULTS if the jpg resolution (DPI) is 300, install_folder_image makes the image square AND knocks down the DPI to 72...

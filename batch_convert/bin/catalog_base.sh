@@ -64,6 +64,11 @@ for ((i = 0; i < ARGC; i++)); do
     FORCE=true
     continue
   fi
+  if [[ $ARGC -ge 1 && ${ARGV[$i]} == "--tmp" ]]; then
+    ((i+=1))
+    TMPDIR=${ARGV[$i]}
+    continue
+  fi
   if [[ $ARGC -ge 1 && ${ARGV[$i]:0:2} == "--" ]]; then
     echo "Unknown option ${ARGV[$i]}"
     exit -1
@@ -106,6 +111,8 @@ function sanitycheck
   local DEST=$2
   local action=$3
 
+  echo "Sanity Checking..."
+
   # protect our valuable data:
   if [[ "$action" == "" ]]; then
     echo "[ABORT]  Your action is empty, check the actions array:\n   \"$action\""
@@ -134,6 +141,8 @@ function sanitycheck
     echo "[ABORT]  Your dest dir is empty, check the action:\n   \"$action\""
     exit -1
   fi
+
+  echo "Sanity Checking... looks good!"
 }
 
 
@@ -172,8 +181,8 @@ if [[ $GEN == true && $FORCE == true ]]; then
 fi
 
 # run the jobs
-[ ! -d "$DSTDIR" ] && echo "Creating directory: $DSTDIR" && mkdir -p "$DSTDIR"
-[ ! -d "$TMPDIR" ] && echo "Creating directory: $TMPDIR" && mkdir -p "$TMPDIR"
+[[ $GEN == true && ! -d "$DSTDIR" ]] && echo "Creating directory: $DSTDIR" && mkdir -p "$DSTDIR"
+[[ $GEN == true && ! -d "$TMPDIR" ]] && echo "Creating directory: $TMPDIR" && mkdir -p "$TMPDIR"
 for action in "${actions[@]}"
 do
   #echo "action string:  '$action'"
@@ -183,14 +192,38 @@ do
   PREFIX=`echo "$DEST" | sed -e "s/^.\+\///"`
   DEST_NO_PREFIX=`echo "$DEST" | sed -e "s/\/[^/]\+$//"`
 
+  DEST_parent="$(dirname "$DEST")"
+  [[ $GEN == true && ! -d "$DEST_parent" ]] && echo "Creating directory: $DEST_parent" && mkdir -p "$DEST_parent"
+
   sanitycheck "$SRC" "$DEST" "$action"
 
   echo "[ACTION] cmd:'$CMD' src:'$SRC' dst:'$DEST'"
-  [[ $GEN == true && "$CMD" == "convert" ]] && [[ ! -d "$DEST-m4a" ]] && mkdir -p "$DEST_NO_PREFIX" && echo "Pulling src data to ${TMPDIR}/${PREFIX}-wav" && cp -r "$SRC" "${TMPDIR}/${PREFIX}-wav" && "$SCRIPTDIR/convert.sh" "${TMPDIR}/${PREFIX}-wav" "${TMPDIR}/$PREFIX" && echo "Removing temporary wav data from ${TMPDIR}/${PREFIX}-wav" && rm -rf "${TMPDIR}/${PREFIX}-wav" && echo "Moving data from $TMPDIR/${PREFIX}-* to $DEST_NO_PREFIX/" && mv "${TMPDIR}/${PREFIX}-"* "$DEST_NO_PREFIX/"
-  [[ $GEN == true && "$CMD" == "copy" ]] && [[ ! -d "$DEST" ]] && echo "copying $SRC to $DEST" && cp -r "$SRC" "$DEST"
+
+  # [convert] CONVERT WAV TO COMPRESSED FORMATS
+  [[ $GEN == true && "$CMD" == "convert" ]] && [[ ! -d "$DEST-m4a" ]] && \
+    mkdir -p "$DEST_NO_PREFIX" && \
+    echo "Pulling src data to ${TMPDIR}/${PREFIX}-wav" && \
+    rsync -a --info=progress2 "$SRC/" "${TMPDIR}/${PREFIX}-wav" --exclude='backup*' && \
+    "$SCRIPTDIR/convert.sh" "${TMPDIR}/${PREFIX}-wav" "${TMPDIR}/$PREFIX" && \
+    echo "Removing temporary wav data from ${TMPDIR}/${PREFIX}-wav" && \
+    rm -rf "${TMPDIR}/${PREFIX}-wav" && \
+    echo "Moving data from $TMPDIR/${PREFIX}-* to $DEST_NO_PREFIX/" && \
+    mv "${TMPDIR}/${PREFIX}-"* "$DEST_NO_PREFIX/"
+
+  # [copy] COPY DIR
+  #FYI: some methods to copy:
+  #cp -r "$SRC" "$DEST"                                           # copy it all
+  #rsync -a  --info=progress2 "$SRC/" "$DEST" --exclude='backup*'  # exclude backup dirs, show overall progress
+  #rsync -av --info=progress2 "$SRC/" "$DEST" --exclude='backup*'  # exclude backup dirs, show progress for each file
+  [[ $GEN == true && "$CMD" == "copy" ]] && [[ ! -d "$DEST" ]] && \
+    echo "copying $SRC to $DEST" && \
+    rsync -a --info=progress2 "$SRC/" "$DEST" --exclude='backup*'
 done
 
+[ $GEN == false ] && echo "Source Locations All Verified!"
 [ $GEN == false ] && echo "use --gen to run the jobs above (generates encoded files)"
 [[ $GEN == true && $FORCE == false ]] && echo "use --force to clean out destinations, before running jobs"
+
+# clean up
 rm -rf "$TMPDIR"
 
