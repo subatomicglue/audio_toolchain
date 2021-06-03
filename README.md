@@ -13,9 +13,10 @@ Here are some command line tools I use for audio processing.
       - uses `sox` to isolate the left or right channels, or mix them
     - [normalize.sh](normalize.sh) normalize the level of audio files
       - uses `sox` to normalize the sound level
-    - [max_lvl.sh](max_lvl.sh) output the max level found in the audio file
-    - [peak_dB.sh](peak_dB.sh) output the peak db found in the audio file
-    - [samples.sh](samples.sh) output the number of samples found in the audio file
+    - analysis tools:
+      - [max_lvl.sh](max_lvl.sh) output the max level found in the audio file (uses `sox`)
+      - [peak_dB.sh](peak_dB.sh) output the peak db found in the audio file (uses `sox`)
+      - [samples.sh](samples.sh) output the number of samples found in the audio file (uses `sox`)
     - [sfz.js](sfz.js) command line script to create a .sfz sampler instrument bank
     - [sfz_to_sf2.sh](sfz_to_sf2.sh) and [sf2_to_sfz.sh](sf2_to_sfz.sh) command line scripts to convert between sf2 and sfz sampler formats.
       - uses `polyphone` to do the conversion
