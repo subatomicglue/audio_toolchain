@@ -265,6 +265,7 @@ foreach (@files)
                 #"--encodedBy \"subatomiclabs\" ".
                 "--podcastURL \"$URL\" ".
                 #"--overwrite"
+                "--title \"$title\" ".
                 "-o \"\$tmp_dir/__temp2435789234759.m4a\" && mv \"\$tmp_dir/__temp2435789234759.m4a\" \"$filename\"; rm -rf \"\${tmp_dir}\"";
       `$cmd`;
    }

@@ -115,30 +115,39 @@ function sanitycheck
 
   # protect our valuable data:
   if [[ "$action" == "" ]]; then
-    echo "[ABORT]  Your action is empty, check the actions array:\n   \"$action\""
+    echo "[ABORT]  Your action is empty, check the actions array:"
+    echo "    \"$action\""
     exit -1
   fi
   if [[ "$SRC" == "$DEST" ]]; then
-    echo "[ABORT]  SCARY! SRC == DEST.  We could have deleted/corrupted your SOURCE!\n   \"$SRC\" == \"$DEST\""
+    echo "[ABORT]  SCARY! SRC == DEST.  We could have deleted/corrupted your SOURCE!"
+    echo "    \"$SRC\" == \"$DEST\""
     exit -1
   fi
 
   if [[ ! -d "$SRC" ]]; then
-    echo "[ABORT]  Your source dir doesn't exist:\n   \"$SRC\""
+    echo "[ABORT]  Your source dir doesn't exist:"
+    echo "    \"$SRC\""
     exit -1
   fi
   local parent="$(dirname "$DEST")"
   if [[ ! -d "$parent" ]]; then
-    echo "[ABORT]  Parent dir '$parent' doesn't exist!  (is it mounted?)\n     => We're trying to copy '$SRC' to '$DEST'\n   \"$action\""
+    echo "[ABORT]  Parent dir '$parent' doesn't exist!  (is it mounted?)"
+    echo "=> We're trying to copy '$SRC' to '$DEST'"
+    echo "   using  \"$action\""
+    echo ""
+    echo "try using --gen to create the dir"
     exit -1
   fi
 
   if [[ "$SRC" == "" ]]; then
-    echo "[ABORT]  Your src dir is empty, check the action:\n   \"$action\""
+    echo "[ABORT]  Your src dir is empty, check the action:"
+    echo "    \"$action\""
     exit -1
   fi
   if [[ "$DEST" == "" ]]; then
-    echo "[ABORT]  Your dest dir is empty, check the action:\n   \"$action\""
+    echo "[ABORT]  Your dest dir is empty, check the action:"
+    echo "    \"$action\""
     exit -1
   fi
 

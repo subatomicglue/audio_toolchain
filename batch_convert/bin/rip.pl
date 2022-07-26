@@ -89,11 +89,9 @@ foreach (@files)
       {
          unlink( $newname );
 
-         # use fraunhoffer's fdk-aac
-         # The Fraunhofer FDK AAC is a high-quality open-source AAC encoder library developed by Fraunhofer IIS.
-         # https://wiki.hydrogenaud.io/index.php?title=Fraunhofer_FDK_AAC
-         if (`which fdkaac`) {
-            my $cmd = "fdkaac --ignorelength --profile 2 --bitrate-mode 5 -o \"$newname\" \"$wavname\"";
+         # use AppleMusic/iTunes encoder
+         if (`which afconvert`) {
+            my $cmd = "afconvert -v -f m4af -d aac -b 192000 -q 127 -s 2 \"$wavname\" \"$newname\"";
             print $cmd . "\n";
             `$cmd`;
          }
@@ -114,11 +112,19 @@ foreach (@files)
             `$cmd`;
          }
 
-         # use AppleMusic/iTunes encoder
-         elsif (`which afconvert`) {
-            print "TODO: implement afconvert encoder!\n";
+         # use ffmpeg encoder
+         elsif (`which ffmpeg`) {
+            my $cmd = "ffmpeg -i \"$wavname\" \"$newname\"";
+            print $cmd . "\n";
+            `$cmd`;
+         }
 
-            my $cmd = "afconvert --help";
+         # WARNING:  Honda 2016 CRV Touring displays "UNPLAYABLE FILE" for fdkaac here:
+         # use fraunhoffer's fdk-aac
+         # The Fraunhofer FDK AAC is a high-quality open-source AAC encoder library developed by Fraunhofer IIS.
+         # https://wiki.hydrogenaud.io/index.php?title=Fraunhofer_FDK_AAC
+         elsif (`which fdkaac`) {
+            my $cmd = "fdkaac --ignorelength --profile 2 --bitrate-mode 5 -o \"$newname\" \"$wavname\"";
             print $cmd . "\n";
             `$cmd`;
          }
