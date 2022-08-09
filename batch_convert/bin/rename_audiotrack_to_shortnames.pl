@@ -1,63 +1,84 @@
 #!/usr/bin/env perl
-
+use strict;
+use warnings;
 use File::Basename; # dirname, basename
 use Cwd; # cwd, getcwd
 use Cwd 'abs_path';
-my $cwd = cwd();
-
-# defaults
-$IN_FILES  = "*.mp3";
-$OUT_PATH  = "mp3-shortnames";
-$BIN_PATH = dirname( abs_path($0) ); # script's directory
-
-sub defaults()
-{
-  return "in[$IN_FILES] out[$OUT_PATH] scriptdir[$BIN_PATH]";
-}
-
-# command line can override defaults
-for (my $x = 0; $x < @ARGV; $x++)
-{
-   if ($ARGV[$x] eq "-o" || $ARGV[$x] eq "-out")
-   {
-      $x++;
-      $OUT_PATH = $ARGV[$x];
-      $OUT_PATH =~ s/[\\\/]$//;
-   }
-   elsif ($ARGV[$x] eq "-i" || $ARGV[$x] eq "-in")
-   {
-      $x++;
-      $IN_FILES = $ARGV[$x];
-   }
-   else
-   {
-      print "Shorten names of files with our audio tracklist naming convention:\n";
-      print "e.g.:\n";
-      print "  \"subatomicglue - inertialdecay - 01 - hard.wav\"  ->  \"hard.wav\"\n";
-      print "\n";
-      print "usage:\n";
-      print " makeshortmp3s.pl                       # rename all mp3 files in current dir to $OUT_PATH\n";
-      print " makeshortmp3s.pl -o $OUT_PATH     # specify output dir\n";
-      print " makeshortmp3s.pl -i \"../myalbum-mp3/*.mp3\" -o ../myalbum-mp3-shortnames";
-      print "\n";
-      print "Defaults:\n";
-      print " ".defaults()."\n";
-      exit -1;
-   }
-}
-
-print "makeshortmp3s[".defaults()."]\n";
-
-##############################################################
 use File::Path;
 use File::Copy;
 
-print "Creating dir: $OUT_PATH\n";
-mkpath( $OUT_PATH );
+my $scriptpath = $0;
+my $scriptname = basename( $0 );
+my $scriptdir = dirname( abs_path( $scriptpath ) );
+my $cwd = cwd();
+
+# options:
+my $OUTDIR  = "out";
+my @args = ();
+my $VERBOSE=0;
+my $INDIR  = "in";
+my $TYPE = "mp3";
+
+#####################################
+# scan command line args:
+sub usage()
+{
+   print "$scriptname - Shorten names of files with our audio tracklist naming convention, to track title only:\n";
+   print "e.g.:\n";
+   print "  \"subatomicglue - inertialdecay - 01 - hard.wav\"  -->  \"hard.wav\"\n";
+   print "\n";
+   print "Usage:\n";
+   print " $scriptname.pl <in dir> <out dir> <type>                           # rename <in dir>/*.<type> files to <out dir>/ (type defaults to \"$TYPE\")\n";
+   print " $scriptname.pl \"./myalbum-mp3\" \"./myalbum-mp3-shortnames\" mp3";
+   print "\n";
+}
+
+# command line can override defaults
+my $ARGC=@ARGV;
+my $non_flag_args = 0;
+my $non_flag_args_required = 2;
+for (my $i = 0; $i < $ARGC; $i++)
+{
+   #print( $i. " " . $ARGV[$i] . "\n");
+   if ($ARGV[$i] eq "--help")
+   {
+    usage();
+    exit( -1 );
+   }
+   if ($ARGV[$i] eq "--verbose")
+   {
+      $VERBOSE = 1;
+      continue
+   }
+   if (substr( $ARGV[$i], 0, 2 ) eq "--")
+   {
+      print( "Unknown option ".$ARGV[$i]."\n" );
+      exit(-1)
+   }
+   push( @args, $ARGV[$i] );
+   $VERBOSE && print( "Parsing Args: argument #" . ${non_flag_args} . ": \"" . ${ARGV[$i]} . "\"\n" );
+   $non_flag_args += 1;
+}
+
+# output help if they're getting it wrong...
+if ($non_flag_args_required != 0 && ($ARGC == 0 || !($non_flag_args >= $non_flag_args_required))) {
+  ($ARGC > 0) && print( "Expected ".${non_flag_args_required}." args, but only got ".${non_flag_args}."\n" );
+  usage();
+  exit( -1 );
+}
+##########################################
+$INDIR=$args[0];
+$OUTDIR=$args[1];
+$TYPE=@args > 2 ? $args[2] : $TYPE;
+
+if (! -d "$OUTDIR")
+{
+   print "Creating dir: $OUTDIR\n";
+   mkpath( $OUTDIR );
+}
 
 # the files to convert
-@files = glob($IN_FILES);
-print "Renaming " . join(",", @files ) . "\n";
+my @files = glob("$INDIR/*.$TYPE");
 foreach (@files)
 {
    my $mp3name = $_;
@@ -72,12 +93,14 @@ foreach (@files)
    my $artist = $1;
    my $ext = $5;
 
-   my $shortname = $OUT_PATH . "/" . $title . "." . $ext;
+   my $shortname = $OUTDIR . "/" . $title . "." . $ext;
    if (!-f $shortname || ((stat($shortname))[9] < (stat($mp3name))[9]))
    {
-      unlink( $shortname );
-      print "copy $mp3name to $shortname\n";
+      #unlink( $shortname );
+      print "Copy \"$mp3name\"  -->  \"$shortname\"\n";
       copy( $mp3name, $shortname );
    }
 }
 
+`cp \"$INDIR/"*-*-*README.txt \"$OUTDIR/README.txt\" || echo \"file not found\"`;
+`cp \"$INDIR/Folder.jpg\" \"$OUTDIR/\" || echo \"file not found\"`;

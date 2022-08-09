@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# this script's dir (and location of the other tools)
+scriptpath=$0
+scriptname=`basename "$0"`
+scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cwd=`pwd`
+
 # options:
 max_dimension=500
 resize_square=false
@@ -13,14 +19,14 @@ BINDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # scan command line args:
 function usage
 {
-  echo "$0 copy a Folder.jpg to destination, resizing if needed"
+  echo "$scriptname copy a Folder.jpg to destination, resizing if needed"
   echo "Usage: "
-  echo "  $0 <folder.jpg> <destination.jpg>"
-  echo "  $0 <folder.jpg> <destination.jpg> --help                (this help)"
-  echo "  $0 <folder.jpg> <destination.jpg> --verbose             (verbose debugging (if any))"
-  echo "  $0 <folder.jpg> <destination.jpg> --max_dimension <dim> (maximum pixel dimension default:$max_dimension)"
-  echo "  $0 <folder.jpg> <destination.jpg> --resize_square       (force the image to be square default:$resize_square)"
-  echo "  $0 <folder.jpg> <destination.jpg> --crop_square         (force the image to be square default:$crop_square)"
+  echo "  $scriptname <folder.jpg> <destination.jpg>"
+  echo "  $scriptname <folder.jpg> <destination.jpg> --help                (this help)"
+  echo "  $scriptname <folder.jpg> <destination.jpg> --verbose             (verbose debugging (if any))"
+  echo "  $scriptname <folder.jpg> <destination.jpg> --max_dimension <dim> (maximum pixel dimension default:$max_dimension)"
+  echo "  $scriptname <folder.jpg> <destination.jpg> --resize_square       (force the image to be square default:$resize_square)"
+  echo "  $scriptname <folder.jpg> <destination.jpg> --crop_square         (force the image to be square default:$crop_square)"
   echo ""
 }
 ARGC=$#

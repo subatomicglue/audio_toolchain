@@ -4,6 +4,12 @@ let fs = require( "fs" );
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
+// this script's dir (and location of the other tools)
+let scriptpath=__filename
+let scriptname=__filename.replace( /^.*\//, "" )
+let scriptdir=__dirname
+let cwd=process.cwd()
+
 // options:
 let note = 0;
 let samp = "";
@@ -16,14 +22,14 @@ let VERBOSE=false;
 // scan command line args:
 function usage()
 {
-  console.log( `${process.argv[1]} command line script to create a .sfz sampler instrument bank` );
+  console.log( `${scriptname} - command line script to create a .sfz sampler instrument bank` );
   console.log( `Usage:
-   ${process.argv[1]} <out>         (output file:  bank.sfz)
-   ${process.argv[1]} --help        (this help)
-   ${process.argv[1]} --verbose     (output verbose information)
-   ${process.argv[1]} --note        (note to map to: e.g. 36)
-   ${process.argv[1]} --samp        (sample prefix to map to: e.g. ./BD/BD)
-   ${process.argv[1]} --prefix      (prefix string to prepend to sample path: default '${prefix}/')
+   ${scriptname} <out>         (output file:  bank.sfz)
+   ${scriptname} --help        (this help)
+   ${scriptname} --verbose     (output verbose information)
+   ${scriptname} --note        (note to map to: e.g. 36)
+   ${scriptname} --samp        (sample prefix to map to: e.g. ./BD/BD)
+   ${scriptname} --prefix      (prefix string to prepend to sample path: default '${prefix}/')
   ` );
 }
 let ARGC = process.argv.length-2; // 1st 2 are node and script name...

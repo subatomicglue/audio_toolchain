@@ -303,5 +303,12 @@ foreach (@files)
      `$cmd`;
    }
 
+   # add the album cover to mp4
+   if ($ext =~ /mp4/i && -f "$ALBUM_IMG")
+   {
+      my $cmd = "";
+      print "DONE:  Already implemented in rip.pl, since we encode the image into the video stream using ffmpeg\n";
+      #`$cmd`
+   }
 }
 

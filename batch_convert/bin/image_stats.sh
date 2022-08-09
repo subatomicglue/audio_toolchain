@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# this script's dir (and location of the other tools)
+scriptpath=$0
+scriptname=`basename "$0"`
+scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cwd=`pwd`
+
 # options:
 which="width"
 nocr=0
@@ -10,14 +16,14 @@ VERBOSE=false
 # scan command line args:
 function usage
 {
-  echo "$0 output the image stats"
+  echo "$scriptname output the image stats"
   echo "Usage: "
-  echo "  $0 <imagefile>   (default)"
-  echo "  $0 --help        (this help)"
-  echo "  $0 --verbose     (verbose debugging (if any))"
-  echo "  $0 --width       (output width of image (default))"
-  echo "  $0 --height      (output height of image)"
-  echo "  $0 --nocr        (return the single result with no carriage return, default $nocr)"
+  echo "  $scriptname <imagefile>   (default)"
+  echo "  $scriptname --help        (this help)"
+  echo "  $scriptname --verbose     (verbose debugging (if any))"
+  echo "  $scriptname --width       (output width of image (default))"
+  echo "  $scriptname --height      (output height of image)"
+  echo "  $scriptname --nocr        (return the single result with no carriage return, default $nocr)"
   echo ""
 }
 ARGC=$#

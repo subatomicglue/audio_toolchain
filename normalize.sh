@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# this script's dir (and location of the other tools)
+scriptpath=$0
+scriptname=`basename "$0"`
+scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cwd=`pwd`
+
 # options:
 dest_dir="normalized"        # CAUTION we DELETE this dir! (unique name here)
 wavs=()
@@ -10,13 +16,13 @@ level=0.01
 # scan command line args:
 function usage
 {
-  echo "$0 normalize audio files"
+  echo "$scriptname normalize audio files"
   echo "Usage: "
-  echo "  $0 <wav files>   (list of wav files to rename, copying to '$dest_dir/')"
-  echo "  $0 --help        (this help)"
-  echo "  $0 --verbose     (output verbose information)"
-  echo "  $0 --level       (default $level)"
-  echo "  $0 --destdir     (default '$dest_dir/')"
+  echo "  $scriptname <wav files>   (list of wav files to rename, copying to '$dest_dir/')"
+  echo "  $scriptname --help        (this help)"
+  echo "  $scriptname --verbose     (output verbose information)"
+  echo "  $scriptname --level       (default $level)"
+  echo "  $scriptname --destdir     (default '$dest_dir/')"
   echo ""
 }
 ARGC=$#

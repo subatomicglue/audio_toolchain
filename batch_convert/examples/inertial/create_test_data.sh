@@ -24,7 +24,7 @@ for i in "${tracks[@]}"; do
 done
 
 echo ". . .\nCreating test Folder.jpg"
-convert -size 32x32 xc:white Folder.jpg
+convert -size 48x32 xc:blue Folder.jpg
 
 echo ". . .\nCreating test README.txt"
 echo "hello world\n\n<tell us all about your album here>\n\nrun '../../bin/convert.sh . out' to batch convert!" > README.txt

@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# this script's dir (and location of the other tools)
+scriptpath=$0
+scriptname=`basename "$0"`
+scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cwd=`pwd`
+
 # options:
 type="db"               # peak "db" or "lvl"
 dest_dir="renamed"      # CAUTION we DELETE this dir! (unique name here)
@@ -11,14 +17,14 @@ VERBOSE=false
 # scan command line args:
 function usage
 {
-  echo "$0 rename audio files by their peak level.  useful for individual instrument samples."
+  echo "$scriptname rename audio files by their peak level.  useful for individual instrument samples."
   echo "Usage: "
-  echo "  $0 <wav files>   (list of wav files to rename, copying to '$dest_dir/')"
-  echo "  $0 --help        (this help)"
-  echo "  $0 --verbose     (output verbose information)"
-  echo "  $0 --seconds     (number of seconds to scan, default $seconds_to_scan)"
-  echo "  $0 --type        (use peak db or lvl in the rename, default $type)"
-  echo "  $0 --destdir     (default '$dest_dir/')"
+  echo "  $scriptname <wav files>   (list of wav files to rename, copying to '$dest_dir/')"
+  echo "  $scriptname --help        (this help)"
+  echo "  $scriptname --verbose     (output verbose information)"
+  echo "  $scriptname --seconds     (number of seconds to scan, default $seconds_to_scan)"
+  echo "  $scriptname --type        (use peak db or lvl in the rename, default $type)"
+  echo "  $scriptname --destdir     (default '$dest_dir/')"
   echo ""
 }
 ARGC=$#

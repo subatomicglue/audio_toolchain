@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# this script's dir (and location of the other tools)
+scriptpath=$0
+scriptname=`basename "$0"`
+scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cwd=`pwd`
+
 # options:
 nocr=0
 wavs=()
@@ -9,12 +15,12 @@ VERBOSE=false
 # scan command line args:
 function usage
 {
-  echo "$0 output the number of samples found in the audio file"
+  echo "$scriptname output the number of samples found in the audio file"
   echo "Usage: "
-  echo "  $0               (default)"
-  echo "  $0 --help        (this help)"
-  echo "  $0 --verbose     (output verbose information)"
-  echo "  $0 --nocr        (return the single result with no carriage return, default $nocr)"
+  echo "  $scriptname               (default)"
+  echo "  $scriptname --help        (this help)"
+  echo "  $scriptname --verbose     (output verbose information)"
+  echo "  $scriptname --nocr        (return the single result with no carriage return, default $nocr)"
   echo ""
 }
 ARGC=$#

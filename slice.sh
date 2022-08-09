@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# this script's dir (and location of the other tools)
+scriptpath=$0
+scriptname=`basename "$0"`
+scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cwd=`pwd`
+
 # options:
 dest_dir="sliced"        # CAUTION we DELETE this dir! (unique name here)
 thresh=1
@@ -10,13 +16,13 @@ VERBOSE=false
 # scan command line args:
 function usage
 {
-  echo "$0   auto slices a single audio file containing music instrument samples (separated by silence), into separate .wav files (timmed by silence)"
+  echo "$scriptname   auto slices a single audio file containing music instrument samples (separated by silence), into separate .wav files (timmed by silence)"
   echo "Usage: "
-  echo "  $0 <in>          (in file: ./SD.aif)"
-  echo "  $0 --help        (this help)"
-  echo "  $0 --verbose     (output verbose information)"
-  echo "  $0 --thresh      (silence threshold % 1-100, default: $thresh)"
-  echo "  $0 --destdir     (default '$dest_dir/')"
+  echo "  $scriptname <in>          (in file: ./SD.aif)"
+  echo "  $scriptname --help        (this help)"
+  echo "  $scriptname --verbose     (output verbose information)"
+  echo "  $scriptname --thresh      (silence threshold % 1-100, default: $thresh)"
+  echo "  $scriptname --destdir     (default '$dest_dir/')"
   echo ""
 }
 ARGC=$#

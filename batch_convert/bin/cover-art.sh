@@ -1,17 +1,28 @@
+#!/bin/sh
 
+
+# TODO: should we add mp4 support? (basically use ffmpeg: encode video stream from still image, copy the audio stream)
+
+
+# this script's dir (and location of the other tools)
+scriptpath=$0
+scriptname=`basename "$0"`
+scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cwd=`pwd`
+
+# options:
 AUDIOFILES=()
 VERBOSE=false
-BINDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 ################################
 # scan command line args:
 function usage
 {
-  echo "$0 add cover art image to an audio file [mp3|m4a|flac|ogg]"
+  echo "$scriptname add cover art image to an audio file [mp3|m4a|flac|ogg]"
   echo "Usage:"
-  echo "  $0 <artfile.jpg> <audio_file>"
-  echo "  $0 --help        (this help)"
-  echo "  $0 --verbose     (output verbose information)"
+  echo "  $scriptname <artfile.jpg> <audio_file>"
+  echo "  $scriptname --help        (this help)"
+  echo "  $scriptname --verbose     (output verbose information)"
   echo ""
 }
 ARGC=$#
@@ -90,7 +101,7 @@ do
     metaflac --import-picture-from="$ARTFILE" "$AUDIOFILE"
 
   elif [ "${AUDIOFILE: -4}" == ".ogg" ]; then
-    "$BINDIR/ogg-cover-art.sh" "$ARTFILE" "$AUDIOFILE" > /dev/null 2>&1
+    "$scriptdir/ogg-cover-art.sh" "$ARTFILE" "$AUDIOFILE" > /dev/null 2>&1
 
   else
     echo "Unknown audio filetype for \"$AUDIOFILE\""

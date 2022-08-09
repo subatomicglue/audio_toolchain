@@ -45,7 +45,7 @@ BEGIN
 
 print "playlist-gen[".defaults()."]\n";
 
-# the files we want to auto-tag
+# the files we want
 @files = glob( $IN_FILES );
 
 
@@ -151,8 +151,19 @@ foreach (@files)
    # for m4a files
    if ($ext =~ /m4a/i)
    {
-      # get running time for the wav file
-      my $secs = 69;
+      # get running time for the m4a file
+      my $secs = floor( `ffprobe -i "$filename"  -show_entries format=duration -v quiet -of csv="p=0"` );
+
+      # write playlist entry
+      print PLAYLIST_M3U_FILE "#EXTINF:$secs,$artist - $title\n";
+      print PLAYLIST_M3U_FILE "$local_filename\n";
+   }
+
+   # for mp4 files
+   if ($ext =~ /mp4/i)
+   {
+      # get running time for the mp4 file
+      my $secs = floor( `ffprobe -i "$filename"  -show_entries format=duration -v quiet -of csv="p=0"` );
 
       # write playlist entry
       print PLAYLIST_M3U_FILE "#EXTINF:$secs,$artist - $title\n";
