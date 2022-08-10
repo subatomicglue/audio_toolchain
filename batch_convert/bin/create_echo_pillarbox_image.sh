@@ -10,7 +10,7 @@
 # - image fit to cover viewport
 # - blur viewport    (some for rectangular/opaque art, a lot for art w/ alpha)
 # - blacken viewport (some for rectangular/opaque art, a lot for art w/ alpha)
-# - image fit to viewport
+# - image fit to within viewport
 
 # this script's dir (and location of the other tools)
 scriptpath=$0
