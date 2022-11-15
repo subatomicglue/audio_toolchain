@@ -20,6 +20,7 @@ cwd=`pwd`
 
 # options:
 args=()
+density=""
 VERBOSE=false
 
 ################################
@@ -54,6 +55,13 @@ for ((i = 0; i < ARGC; i++)); do
     VERBOSE=true
     continue
   fi
+  #if [[ $ARGC -ge 1 && ${ARGV[$i]} == "--density" ]]; then
+  #  ((i+=1))
+  #  density=${ARGV[$i]}
+  #  density="-units PixelsPerInch -density $density"
+  #  $VERBOSE && echo "Parsing Args: changing density to $density"
+  #  continue
+  #fi
   if [[ $ARGC -ge 1 && ${ARGV[$i]:0:2} == "--" ]]; then
     echo "Unknown option ${ARGV[$i]}"
     exit -1

@@ -10,6 +10,7 @@ cwd=`pwd`
 max_dimension=500
 resize_square=false
 crop_square=false
+echo_pillar_box=false
 args=()
 VERBOSE=false
 # script's dir:
@@ -56,6 +57,10 @@ for ((i = 0; i < ARGC; i++)); do
     crop_square=true
     continue
   fi
+  if [[ $ARGC -ge 1 && ${ARGV[$i]} == "--echo_pillar_box" ]]; then
+    echo_pillar_box=true
+    continue
+  fi
   if [[ $ARGC -ge 1 && ${ARGV[$i]:0:2} == "--" ]]; then
     echo "Unknown option ${ARGV[$i]}"
     exit -1
@@ -82,25 +87,44 @@ fi
 # I just wanted to output some stats... :)
 WIDTH=`$BINDIR/image_stats.sh --nocr --width "${args[0]}"`
 HEIGHT=`$BINDIR/image_stats.sh --nocr --height "${args[0]}"`
+# Set `min_dimension` to lesser of width and height
+MIN_WIDTH_HEIGHT=$WIDTH
+[ $HEIGHT -lt $MIN_WIDTH_HEIGHT ] && MIN_WIDTH_HEIGHT=$HEIGHT
+MAX_WIDTH_HEIGHT=$WIDTH
+[ $HEIGHT -gt $MAX_WIDTH_HEIGHT ] && MAX_WIDTH_HEIGHT=$HEIGHT
 $VERBOSE && echo "${args[0]} image is $WIDTH x $HEIGHT"
-if [[ $WIDTH -gt $max_dimension || $HEIGHT -gt $max_dimension ]]; then
-  echo "Resizing image from ${WIDTH}x${HEIGHT} to fit inside a ${max_dimension}x${max_dimension} box"
-  echo " - ${args[0]} (${WIDTH}x${HEIGHT})"
-  if [ $crop_square == true ]; then
-    convert -units PixelsPerInch "${args[0]}" -thumbnail ${max_dimension}x${max_dimension}^ -gravity East -extent ${max_dimension}x${max_dimension} -density 72 "${args[1]}"
-  elif [ $resize_square == true ]; then
-    convert -units PixelsPerInch "${args[0]}" -resize ${max_dimension}x${max_dimension}\!\> -density 72 "${args[1]}"
-  else
-    convert -units PixelsPerInch "${args[0]}" -resize ${max_dimension}x${max_dimension}\> -density 72 "${args[1]}"
-  fi
-
-  WIDTH=`$BINDIR/image_stats.sh --nocr --width "${args[1]}"`
-  HEIGHT=`$BINDIR/image_stats.sh --nocr --height "${args[1]}"`
-  echo " - ${args[1]} (${WIDTH}x${HEIGHT})"
-else
-  echo "Copying image ${WIDTH}x${HEIGHT} to destination"
-  echo " - ${args[0]} (${WIDTH}x${HEIGHT})"
-  echo " - ${args[1]} (${WIDTH}x${HEIGHT})"
-  cp "${args[0]}" "${args[1]}"
+if [[ $WIDTH -gt $max_dimension ]]; then
+  MAX_WIDTH_HEIGHT=$max_dimension
 fi
+if [[ $HEIGHT -gt $max_dimension ]]; then
+  MAX_WIDTH_HEIGHT=$max_dimension
+fi
+
+
+echo "Resizing image from ${WIDTH}x${HEIGHT} to fit inside a ${MAX_WIDTH_HEIGHT}x${MAX_WIDTH_HEIGHT} box"
+echo " - ${args[0]} (${WIDTH}x${HEIGHT})"
+if [ $echo_pillar_box == true ]; then
+  echo "echo_pillar_box $cmd"
+  cmd="\"$BINDIR/create_echo_pillarbox_image.sh\" \"${args[0]}\" \"/tmp/tempASDFHJASD237824798.png\" \"$MAX_WIDTH_HEIGHT\" \"$MAX_WIDTH_HEIGHT\""
+  eval "$cmd"
+
+  # make it 72
+  convert -units PixelsPerInch "/tmp/tempASDFHJASD237824798.png" -thumbnail ${MAX_WIDTH_HEIGHT}x${MAX_WIDTH_HEIGHT}^ -gravity Center -extent ${MAX_WIDTH_HEIGHT}x${MAX_WIDTH_HEIGHT} -density 72 "${args[1]}"
+  rm "/tmp/tempASDFHJASD237824798.png"
+
+elif [ $crop_square == true ]; then
+  echo "crop_square"
+  convert -units PixelsPerInch "${args[0]}" -thumbnail ${MAX_WIDTH_HEIGHT}x${MAX_WIDTH_HEIGHT}^ -gravity Center -extent ${MAX_WIDTH_HEIGHT}x${MAX_WIDTH_HEIGHT} -density 72 "${args[1]}"
+elif [ $resize_square == true ]; then
+  echo "resize square"
+  convert -units PixelsPerInch "${args[0]}" -resize ${MAX_WIDTH_HEIGHT}x${MAX_WIDTH_HEIGHT}\! -density 72 "${args[1]}"
+else
+  echo "resize"
+  convert -units PixelsPerInch "${args[0]}" -resize ${MAX_WIDTH_HEIGHT}x${MAX_WIDTH_HEIGHT}\> -density 72 "${args[1]}"
+fi
+
+WIDTH=`$BINDIR/image_stats.sh --nocr --width "${args[1]}"`
+HEIGHT=`$BINDIR/image_stats.sh --nocr --height "${args[1]}"`
+echo " - ${args[1]} (${WIDTH}x${HEIGHT})"
+
 

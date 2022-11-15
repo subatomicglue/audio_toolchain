@@ -31,8 +31,8 @@ for i in "${tracks[@]}"; do
   sox -V -r 48000 -n -b 16 -c 2 "$i" synth 30 sin 1000 vol -6dB
 done
 
-echo ". . .\nCreating test Folder.jpg"
-convert -size 32x52 xc:red Folder.jpg
+echo ". . .\nCreating test Folder.png"
+convert -size 32x52 xc:red Folder.png
 
 echo ". . .\nCreating test README.txt"
 echo "hello world\n\n<tell us all about your album here>\n\nrun '../../bin/convert.sh . out' to batch convert!" > README.txt
@@ -41,4 +41,4 @@ echo ". . .\nContents of README.txt:"
 cat README.txt
 
 mv README.txt "subatomicglue-selling your friend for cash-README.txt"
-cp Folder.jpg "subatomicglue-selling your friend for cash.jpg"
+cp Folder.png "subatomicglue-selling your friend for cash.png"

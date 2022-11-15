@@ -51,6 +51,24 @@ BEGIN
 
 print "tag[".defaults()."\n";
 
+if (! -f "$TAGINI") {
+  my $handle;
+  open( $handle, '>>', $TAGINI ) or die("[tag.pl] Cant open '$TAGINI'");
+  print( $handle, '# tags (the ones not inferable from the filename)
+$ALBUMARTIST="<ARTIST>";
+$DATE="<YEAR>";
+$SHORTCOMMENT="www.<ARTIST>.com";
+$COMMENT="www.<ARTIST>.com";
+$COMPOSER="<COMPOSER NAME>";
+$PUBLISHER="<PUBLISHER>";
+$DISCNUMBER="01";
+$BPM="secret"; # no way to tell... bullshit goes here...
+$GENRE="<GENRE>";
+$URL="http://www.<ARTIST>.com";
+$COPYRIGHT="$DATE <ARTIST>";' );
+  close ($handle) or die ("[tag.pl] Unable to close '$TAGINI'");
+}
+
 # include tag.ini
 print "Reading: [$TAGINI]\n";
 require "$TAGINI";
@@ -79,8 +97,38 @@ sub trim($)
    $string =~ s/\s+$//;
    return $string;
 }
+sub kill_newlines {
+    my $text = shift;
+    $text =~ s/\n//g;
+    $text =~ s/\r//g;
+    return $text;
+}
 
 @lame_help = `lame --help`;
+
+$SIG{INT}  = \&signal_handler;
+$SIG{TERM} = \&signal_handler;
+$SIG{QUIT} = \&signal_handler;
+sub signal_handler {
+  print "SIG death... (!)\n";
+  clean_up();
+  print "-=====================================================================-\n";
+  die "\n";
+}
+
+# NOTE: AtomicParsley SEGFAULTS if the jpg resolution (DPI) is 300, install_folder_image makes the image square AND knocks down the DPI to 72...
+my $TEMP_DIR=kill_newlines( `mktemp -d -t __temp234758923456` );
+my $TEMP_IMAGE="$TEMP_DIR/3478t345.jpg";
+if ( -f "$ALBUM_IMG" ) {
+  `$BIN_PATH/install_folder_image.sh --max_dimension 500 --echo_pillar_box \"$ALBUM_IMG\" \"$TEMP_IMAGE\"`;
+}
+
+sub clean_up {
+  if ( -f "$TEMP_DIR" ) {
+    #print "[INFO] Removing temporary '$TEMP_DIR'\n";
+    `rm -r "$TEMP_DIR"`;
+  }
+}
 
 # loop over file list
 # print tag information
@@ -271,40 +319,40 @@ foreach (@files)
    }
 
    # add the album cover to mp3
-   if ($ext =~ /mp3/i && -f "$ALBUM_IMG")
+   if ($ext =~ /mp3/i && -f "$TEMP_IMAGE")
    {
-     my $cmd = "eyeD3 -Q --preserve-file-times --add-image=\"$ALBUM_IMG\":FRONT_COVER:\"Album cover\" \"$filename\"";
+     my $cmd = "eyeD3 -Q --preserve-file-times --add-image=\"$TEMP_IMAGE\":FRONT_COVER:\"Album cover\" \"$filename\"";
      `$cmd`;
    }
 
    # add the album cover to m4a
-   if ($ext =~ /m4a/i && -f $ALBUM_IMG)
+   if ($ext =~ /m4a/i && -f $TEMP_IMAGE)
    {
      my $cmd = "tmp_dir=\$(mktemp -d -t __temp2435789234759) && ".
                "AtomicParsley \"$filename\" ".
-               "--artwork '$ALBUM_IMG' ".
+               "--artwork '$TEMP_IMAGE' ".
                #"--overwrite".
                "-o \"\$tmp_dir/__temp2435789234759.m4a\" && mv \"\$tmp_dir/__temp2435789234759.m4a\" \"$filename\"; rm -rf \"\${tmp_dir}\"";
      `$cmd`;
    }
 
    # add the album cover to flac
-   if ($ext =~ /flac/i && -f "$ALBUM_IMG")
+   if ($ext =~ /flac/i && -f "$TEMP_IMAGE")
    {
-     my $cmd = "metaflac --import-picture-from=\"$ALBUM_IMG\" \"$filename\"";
+     my $cmd = "metaflac --import-picture-from=\"$TEMP_IMAGE\" \"$filename\"";
      `$cmd`;
    }
 
    # add the album cover to ogg
-   if ($ext =~ /ogg/i && -f "$ALBUM_IMG")
+   if ($ext =~ /ogg/i && -f "$TEMP_IMAGE")
    {
-     my $cmd = "$BIN_PATH/ogg-cover-art.sh \"$ALBUM_IMG\" \"$filename\" > /dev/null 2>&1";
+     my $cmd = "$BIN_PATH/ogg-cover-art.sh \"$TEMP_IMAGE\" \"$filename\" > /dev/null 2>&1";
      #print $cmd . "\n";
      `$cmd`;
    }
 
    # add the album cover to mp4
-   if ($ext =~ /mp4/i && -f "$ALBUM_IMG")
+   if ($ext =~ /mp4/i && -f "$TEMP_IMAGE")
    {
       my $cmd = "";
       print "DONE:  Already implemented in rip.pl, since we encode the image into the video stream using ffmpeg\n";

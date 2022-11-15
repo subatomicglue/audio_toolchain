@@ -137,18 +137,42 @@ requested_formats=(${args[@]:2})
 #  echo "format: '$format'"
 #done
 
+function firstExists {
+  local files_to_check=($@)
+  for i in "${files_to_check[@]}"; do
+    if [ -f "$i" ]; then
+      echo "$i"
+      return
+    fi
+  done
+  echo ""
+  return
+}
+
+function filepath_path { local file=$1; echo `dirname -- "${file}"`; }
+function filepath_name { local file=$1; echo `basename -- "${file%.*}"`; }
+function filepath_ext { local file=$1; echo "${file##*.}"; }
+
 # usage: convert_audio_to_dir <outputdir> <type>
 function convert_audio_to_dir
 {
-  dest=$1
-  type=$2
+  local dest=$1
+  local type=$2
   echo "\n\n===================================================================="
-  echo "[$type]  Converting *.wav to $dest/.$type"
+  echo "[$type]  Converting *.wav to $dest/*.$type"
   echo "===================================================================="
 
-  cmd="$scriptdir/rip.pl -i \"$INDIR/*.wav\" -o \"$dest\" -t $type -image '$INDIR/Folder.jpg'"
+  VIDEO_IMAGE_SEARCH=( "$INDIR/Video.png" "$INDIR/Video.jpg" "$INDIR/Cover.png" "$INDIR/Cover.jpg" "$INDIR/logo.png" "$INDIR/logo.jpg" "$INDIR/Folder.png" "$INDIR/Folder.jpg" )
+  ALBUM_IMAGE_SEARCH=( "$INDIR/Folder.png" "$INDIR/Folder.jpg" "$INDIR/Video.png" "$INDIR/Video.jpg" "$INDIR/Cover.png" "$INDIR/Cover.jpg" "$INDIR/logo.png" "$INDIR/logo.jpg" )
+  VIDEO_IMAGE=`firstExists "${VIDEO_IMAGE_SEARCH[@]}"`
+  ALBUM_IMAGE=`firstExists "${ALBUM_IMAGE_SEARCH[@]}"`
+
+  local cmd="$scriptdir/rip.pl -i \"$INDIR/*.wav\" -o \"$dest\" -t $type"
+  if [ -f "$VIDEO_IMAGE" ]; then
+    cmd+=" -image '$VIDEO_IMAGE'"
+  fi
   echo "\n[$type][rip]\n$cmd"
-  eval $cmd
+  eval $cmd || exit -1
 
   echo "\n[$type][copy]\ncopy $INDIR/*.{jpg|gif|png} $INDIR/*readme.txt $dest/\n"
   local restore_nullglob=$(shopt -p nullglob)
@@ -160,20 +184,27 @@ function convert_audio_to_dir
   eval "$restore_nullglob"
   eval "$restore_nocaseglob"
 
-  if [ -f "$INDIR/Folder.jpg" ]; then
-    # NOTE: AtomicParsley SEGFAULTS if the jpg resolution (DPI) is 300, install_folder_image makes the image square AND knocks down the DPI to 72...
-    cmd="$scriptdir/install_folder_image.sh --max_dimension 500 \"$INDIR/Folder.jpg\" \"$dest/Folder.jpg\""
-    echo "\n[$type][install/resize folder.jpg image]\n$cmd"
-    eval $cmd
+  ALBUM_IMAGE_DEST="$dest/Folder.jpg"
+  if [ -f "$ALBUM_IMAGE" ]; then
+    cmd="$scriptdir/install_folder_image.sh --max_dimension 500 --echo_pillar_box \"$ALBUM_IMAGE\" \"$ALBUM_IMAGE_DEST\""
+    echo "\n[$type][install/resize $ALBUM_IMAGE_DEST image]\n$cmd"
+    eval $cmd || exit -1
+  else
+    cmd="convert -size 500x500 xc:black \"$ALBUM_IMAGE_DEST\""
+    echo "\n[$type][install/resize $ALBUM_IMAGE_DEST black image]\n$cmd"
+    eval $cmd || exit -1
   fi
 
-  cmd="$scriptdir/tag.pl -i \"$dest/*.$type\" -c \"$INDIR/tags.ini\" -a \"$dest/Folder.jpg\""
+  cmd="$scriptdir/tag.pl -i \"$dest/*.$type\" -c \"$INDIR/tags.ini\""
+  if [ -f "$ALBUM_IMAGE" ]; then
+    cmd+=" -a '$ALBUM_IMAGE'"
+  fi
   echo "\n[$type][tag]\n$cmd"
-  eval $cmd
+  eval $cmd || exit -1
 
   cmd="$scriptdir/playlist-gen.pl -i \"$dest/*.$type\" -o $dest/playlist.m3u"
   echo "\n[$type][playlist-gen]\n$cmd"
-  eval $cmd
+  eval $cmd || exit -1
 
   echo ". . . . . . . .  .  .   .   .  .  . . . . . ."
 }

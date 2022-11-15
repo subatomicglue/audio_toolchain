@@ -94,7 +94,7 @@ sub clean_up {
 
 my $VIDEO_WIDTH=1920;
 my $VIDEO_HEIGHT=1080;
-# get the image into the format(s) needed
+# get the image into the format(s) needed (png)
 if ( ! -f "$IMAGE" )
 {
   `convert -size ${VIDEO_WIDTH}x${VIDEO_HEIGHT} xc:black "$TEMP_IMAGE"`;

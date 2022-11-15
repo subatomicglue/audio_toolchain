@@ -154,6 +154,7 @@ function sanitycheck
     echo "    \"$action\""
     exit -1
   fi
+  local action_CMD=`echo "$action" | cut -d ";" -f 1`
   if [[ "$SRC" == "$DEST" ]]; then
     echo "[ABORT]  SCARY! SRC == DEST.  We could have deleted/corrupted your SOURCE!"
     echo "    \"$SRC\" == \"$DEST\""
@@ -163,6 +164,25 @@ function sanitycheck
   if [[ ! -d "$SRC" ]]; then
     echo "[ABORT]  Your source dir doesn't exist:"
     echo "    \"$SRC\""
+    exit -1
+  fi
+
+  if [[ $action_CMD == "convert" && ! -f "$SRC/tags.ini" ]]; then
+    echo "[ABORT]  Missing '$SRC/tags.ini', this is needed for the tag.pl step:"
+    echo "------------------ empty tags.ini -------------------------"
+    echo '# tags (the ones not inferable from the filename)
+$ALBUMARTIST="<ARTIST>";
+$DATE="<YEAR>";
+$SHORTCOMMENT="www.<ARTIST>.com";
+$COMMENT="www.<ARTIST>.com";
+$COMPOSER="<COMPOSER NAME>";
+$PUBLISHER="<PUBLISHER>";
+$DISCNUMBER="01";
+$BPM="secret"; # no way to tell... bullshit goes here...
+$GENRE="<GENRE>";
+$URL="http://www.<ARTIST>.com";
+$COPYRIGHT="$DATE <ARTIST>";'
+    echo "------------------ empty tags.ini -------------------------"
     exit -1
   fi
 
