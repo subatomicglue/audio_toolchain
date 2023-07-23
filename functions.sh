@@ -130,8 +130,8 @@ function sox_convert_to_wav
   fi
   for file in "$@"; do
     local FILENAME=`filepath_name "$file"`
-    if [ "m4a" == `filepath_ext "$file"` ]; then
-      echo "Converting to wav:  \"./$FILENAME.wav\"    (using ffmpeg for m4a)"
+    if [[ "m4a" == `filepath_ext "$file"` || "mp4" == `filepath_ext "$file"` ]]; then
+      echo "Converting to wav:  \"./$FILENAME.wav\"    (using ffmpeg for m4a and mp4)"
       #faad -o "$file.wav" "$file"     # brew install faad2
       ffmpeg -i "$file" "./$FILENAME.wav"   # brew install ffmpeg
     else
@@ -486,4 +486,22 @@ function sox_stats
   soxi -D "$@" | python -c "import sys;print(\"total min:    \" +str( sum(float(l) for l in sys.stdin)/60 ))"
   soxi -D "$@" | python -c "import sys;import datetime;print(\"running time: \" +str( datetime.timedelta(seconds=sum(float(l) for l in sys.stdin)) ))"
 }
+
+function ffmpeg_upscale {
+  if [[ "$#" -lt 1 ]]; then
+    echo "Upscale any video (to h264 video; with m4a (aac) audio encoding)"
+    echo "  ffmpeg_upscale *.mov 1920 1080"
+    echo "  ffmpeg_upscale *.mp4 1280 720"
+    echo "  ffmpeg_upscale *.m4v 1920 1080"
+    echo ""
+    return
+  fi
+  local in="$1"
+  local out="$(basename -- "$in")"
+  local w="$2"
+  local h="$3"
+  ffmpeg -i "$in" -c:v libx264 -c:a aac -b:a 128k -vf scale=${w}x${h}:flags=lanczos "$out.mp4"
+}
+alias mp4_upscale=ffmpeg_upscale
+alias m4v_upscale=ffmpeg_upscale
 
