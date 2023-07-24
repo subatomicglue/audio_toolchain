@@ -136,7 +136,7 @@ function sox_convert_to_wav
       ffmpeg -i "$file" "./$FILENAME.wav"   # brew install ffmpeg
     else
       echo "Converting to wav:  \"./$FILENAME.wav\""
-      sox "$file" "$file.wav"
+      sox "$file" "./$FILENAME.wav"
     fi
   done
 }
