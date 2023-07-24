@@ -5,9 +5,9 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
 // this script's dir (and location of the other tools)
-let scriptpath=__filename
-let scriptname=__filename.replace( /^.*\//, "" )
-let scriptdir=__dirname
+let scriptpath=__filename  // full path to script
+let scriptname=__filename.replace( /^.*\//, "" )  // name of script w/out path
+let scriptdir=__dirname    // the dir of the script
 let cwd=process.cwd()
 
 // options:
@@ -145,7 +145,7 @@ cutoff=19913
       let velFlt = parseFloat( vel );
       let samps = 0;
       try {
-        const { stdout, stderr } = await exec( `./samples.sh --nocr "${sampleset_path_rel}/${f}"` );
+        const { stdout, stderr } = await exec( `${scriptdir}/samples.sh --nocr "${sampleset_path_rel}/${f}"` );
         samps = parseInt( stdout );
       } catch (err) {
         console.log( err );

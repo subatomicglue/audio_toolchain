@@ -63,7 +63,8 @@ rm -f ./drumkit.sf2
 rm -rf ./drumkit_sfz
 cp $TEMPDIR/$IN_DIR/drumkit.sf2 .
 cp -r $TEMPDIR/$IN_DIR/drumkit_sfz .
+zip -r drumkit_sfz.zip "drumkit_sfz"
 
 # clean up, leave no evidence
-#rm -rf $TEMPDIR
+rm -rf $TEMPDIR
 
