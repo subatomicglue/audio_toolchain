@@ -81,9 +81,9 @@ mkdir -p "./$dest_dir"
 
 for f in "${wavs[@]}"; do
   if [ $type == "db" ]; then
-    value=`./peak_dB.sh --nocr --seconds $seconds_to_scan "$f"`db
+    value=`${scriptdir}/peak_dB.sh --nocr --seconds $seconds_to_scan "$f"`db
   elif [[ $type == "lvl" || $type == "level" ]]; then
-    value=`./max_lvl.sh --nocr --seconds $seconds_to_scan "$f"`
+    value=`${scriptdir}/max_lvl.sh --nocr --seconds $seconds_to_scan "$f"`
   fi
 
   f_new=`echo "$f" | sed -E "s/(- [.0-9]+)?(\.[^.]+)$/${value}\2/g"`
