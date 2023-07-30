@@ -2,6 +2,7 @@
 # About
 
 Here are some command line tools I use for audio processing.
+- See [releases](https://github.com/subatomicglue/audio_toolchain/releases) for demo data.
 
 ## Sampler Auto Slicing
   - I use these command line scripts to auto convert single "source" audio files containing recordings of many samples (e.g. bass drum hits at different volumes separated by silence).  We can auto slice these "source" files by silence into separate sample files, renamed with the velocity level, converted to mono, normalized, and then converted to sfz or sf2 sample sets.  All with command line batch tools.
