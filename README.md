@@ -23,7 +23,7 @@ Here are some command line tools I use for audio processing.
       - uses `polyphone` to do the conversion
 
   - See [go](go) as an example of how to run these in a pipeline to auto process and produce `sfz` and `sf2` sampler bank files from a set of "sources" (see above).  Just drop your "source" files into `src/` and run `go`.
-  - There is a fully working drumkit example [here](https://github.com/subatomicglue/audio_toolchain/releases).
+  - There is a fully working drumkit example [here](https://github.com/subatomicglue/audio_toolchain/releases), which illustrates the use of this [go](go) script.
 
 ## Music Album Batch Conversion
   - I use these scripts to auto convert my albums of raw uncompressed .wav files to distributable mp3/ogg/flac with playlists.
