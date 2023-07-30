@@ -22,7 +22,8 @@ Here are some command line tools I use for audio processing.
     - [sfz_to_sf2.sh](sfz_to_sf2.sh) and [sf2_to_sfz.sh](sf2_to_sfz.sh) command line scripts to convert between sf2 and sfz sampler formats.
       - uses `polyphone` to do the conversion
 
-  - See [go](go) as an example of how to run these in a pipeline to auto process and produce `sfz` and `sf2` sampler bank files from a set of "sources" (see above).  Just drop your "source" files into `src/` and run `go`.  There is a fully working drumkit example [here](https://github.com/subatomicglue/audio_toolchain/releases).
+  - See [go](go) as an example of how to run these in a pipeline to auto process and produce `sfz` and `sf2` sampler bank files from a set of "sources" (see above).  Just drop your "source" files into `src/` and run `go`.
+  - There is a fully working drumkit example [here](https://github.com/subatomicglue/audio_toolchain/releases).
 
 ## Music Album Batch Conversion
   - I use these scripts to auto convert my albums of raw uncompressed .wav files to distributable mp3/ogg/flac with playlists.
