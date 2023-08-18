@@ -56,7 +56,7 @@ Here are some command line tools I use for audio processing.
 We rely on some command line tools to do the work:
 - Sampler Auto Slicing:
   - sox, polyphone, (scripting: bash, nodejs)
-- Batch Conversion:
+- Music Album Batch Conversion:
   - flac (flac, metaflac), lame, vorbis-tools (oggenc, ogginfo, vorbiscomment), sox, (scripting: perl)
 
 All of these are open source, cross platform tools, that are available in many platforms including MacOS, Windows, or Linux.
