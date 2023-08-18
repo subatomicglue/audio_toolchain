@@ -54,7 +54,7 @@ Here are some command line tools I use for audio processing.
 # Setup
 
 We rely on some command line tools to do the work:
-- Beat Slicing:
+- Sampler Auto Slicing:
   - sox, polyphone, (scripting: bash, nodejs)
 - Batch Conversion:
   - flac (flac, metaflac), lame, vorbis-tools (oggenc, ogginfo, vorbiscomment), sox, (scripting: perl)
