@@ -9,7 +9,8 @@ cwd=`pwd`
 # options:
 type="db"               # peak "db" or "lvl"
 dest_dir="renamed"      # CAUTION we DELETE this dir! (unique name here)
-seconds_to_scan=1
+start_in_seconds=0
+duration_in_seconds=1
 wavs=()
 VERBOSE=false
 
@@ -22,8 +23,10 @@ function usage
   echo "  $scriptname <wav files>   (list of wav files to rename, copying to '$dest_dir/')"
   echo "  $scriptname --help        (this help)"
   echo "  $scriptname --verbose     (output verbose information)"
-  echo "  $scriptname --seconds     (number of seconds to scan, default $seconds_to_scan)"
-  echo "  $scriptname --type        (use peak db or lvl in the rename, default $type)"
+  echo "  $scriptname --seconds     same as --duration"
+  echo "  $scriptname --duration    (number of seconds to scan, default $duration_in_seconds)"
+  echo "  $scriptname --start       (starting offset in seconds, default $start_in_seconds)"
+  echo "  $scriptname --type        (use peak db or lvl or freq in the rename, default $type)"
   echo "  $scriptname --destdir     (default '$dest_dir/')"
   echo ""
 }
@@ -40,10 +43,22 @@ for ((i = 0; i < ARGC; i++)); do
     VERBOSE=true
     continue
   fi
+  if [[ $ARGC -ge 1 && ${ARGV[$i]} == "--start" ]]; then
+    ((i+=1))
+    start_in_seconds=${ARGV[$i]}
+    $VERBOSE && echo "Parsing Args: Changing to $start_in_seconds seconds to scan"
+    continue
+  fi
   if [[ $ARGC -ge 1 && ${ARGV[$i]} == "--seconds" ]]; then
     ((i+=1))
-    seconds_to_scan=${ARGV[$i]}
-    $VERBOSE && echo "Parsing Args: Changing to $seconds_to_scan seconds to scan"
+    duration_in_seconds=${ARGV[$i]}
+    $VERBOSE && echo "Parsing Args: Changing to $duration_in_seconds seconds to scan"
+    continue
+  fi
+  if [[ $ARGC -ge 1 && ${ARGV[$i]} == "--duration" ]]; then
+    ((i+=1))
+    duration_in_seconds=${ARGV[$i]}
+    $VERBOSE && echo "Parsing Args: Changing to $duration_in_seconds seconds to scan"
     continue
   fi
   if [[ $ARGC -ge 1 && ${ARGV[$i]} == "--type" ]]; then
@@ -81,9 +96,11 @@ mkdir -p "./$dest_dir"
 
 for f in "${wavs[@]}"; do
   if [ $type == "db" ]; then
-    value=`${scriptdir}/peak_dB.sh --nocr --seconds $seconds_to_scan "$f"`db
+    value=`${scriptdir}/peak_dB.sh --nocr --start "$start_in_seconds" --duration "$duration_in_seconds" "$f"`db
+  elif [ $type == "freq" ]; then
+    value=`${scriptdir}/freq.sh --nocr --start "$start_in_seconds" --duration "$duration_in_seconds" "$f"`
   elif [[ $type == "lvl" || $type == "level" ]]; then
-    value=`${scriptdir}/max_lvl.sh --nocr --seconds $seconds_to_scan "$f"`
+    value=`${scriptdir}/max_lvl.sh --nocr --start "$start_in_seconds" --duration "$duration_in_seconds" "$f"`
   fi
 
   f_new=`echo "$f" | sed -E "s/(- [.0-9]+)?(\.[^.]+)$/${value}\2/g"`

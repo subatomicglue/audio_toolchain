@@ -7,7 +7,8 @@ scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cwd=`pwd`
 
 # options:
-seconds_to_scan=1
+start_in_seconds=0
+duration_in_seconds=1
 nocr=0
 wavs=()
 VERBOSE=false
@@ -21,7 +22,9 @@ function usage
   echo "  $scriptname               (default)"
   echo "  $scriptname --help        (this help)"
   echo "  $scriptname --verbose     (output verbose information)"
-  echo "  $scriptname --seconds     (number of seconds to scan, default $seconds_to_scan)"
+  echo "  $scriptname --seconds     same as --duration"
+  echo "  $scriptname --duration    (number of seconds to scan, default $duration_in_seconds)"
+  echo "  $scriptname --start       (starting offset in seconds, default $start_in_seconds)"
   echo "  $scriptname --nocr        (return the single result with no carriage return, default $nocr)"
   echo ""
 }
@@ -41,10 +44,22 @@ for ((i = 0; i < ARGC; i++)); do
     VERBOSE=true
     continue
   fi
+  if [[ $ARGC -ge 1 && ${ARGV[$i]} == "--start" ]]; then
+    ((i+=1))
+    start_in_seconds=${ARGV[$i]}
+    $VERBOSE && echo "Parsing Args: Changing to $start_in_seconds seconds in, as the start"
+    continue
+  fi
   if [[ $ARGC -ge 1 && ${ARGV[$i]} == "--seconds" ]]; then
     ((i+=1))
-    seconds_to_scan=${ARGV[$i]}
-    #echo "changing to $seconds_to_scan seconds to scan"
+    duration_in_seconds=${ARGV[$i]}
+    $VERBOSE && echo "Parsing Args: Changing to $duration_in_seconds seconds to scan"
+    continue
+  fi
+  if [[ $ARGC -ge 1 && ${ARGV[$i]} == "--duration" ]]; then
+    ((i+=1))
+    duration_in_seconds=${ARGV[$i]}
+    $VERBOSE && echo "Parsing Args: Changing to $duration_in_seconds seconds to scan"
     continue
   fi
   if [[ $ARGC -ge 1 && ${ARGV[$i]} == "--nocr" ]]; then
@@ -63,7 +78,7 @@ done
 
 # for each wav given:
 for f in "${wavs[@]}"; do
-  max_lvl=`sox "$f" -n trim 0 $seconds_to_scan stats 2>&1 | grep "Max level" | sed -E "s|^Max level[[:space:]]*([-.0-9]*).*$|\1|g"`
+  max_lvl=`sox "$f" -n trim "$start_in_seconds" "$duration_in_seconds" stats 2>&1 | grep "Max level" | sed -E "s|^Max level[[:space:]]*([-.0-9]*).*$|\1|g"`
   max_lvl_padded=`printf "%07.6f" $max_lvl`
 
   if [ ${#wavs[@]} -gt 1 ]; then

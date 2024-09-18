@@ -140,8 +140,8 @@ cutoff=19913
     let sample_files = fs.readdirSync( sampleset_path_rel );
     let sampleset = [];
     for (let f of sample_files) {
-      let vel  = f.match( /\s([-.0-9]+)(d?b?)\.[^.]+$/ )[1];
-      vel_type = f.match( /\s([-.0-9]+)(d?b?)\.[^.]+$/ )[2] ? "db" : "lvl";
+      let vel  = f.match( /\s([-.0-9]+)(d?b?)\.[^.]+$/ )[1] ? f.match( /\s([-.0-9]+)(d?b?)\.[^.]+$/ )[1] : "1.0";
+      vel_type = f.match( /\s([-.0-9]+)(d?b?)\.[^.]+$/ )[2] ? "db" : f.match( /\s([-0-9]+)\.([0-9]+)\.[^.]+$/ )[2] ? "lvl" : "n/a";
       let velFlt = parseFloat( vel );
       let samps = 0;
       try {

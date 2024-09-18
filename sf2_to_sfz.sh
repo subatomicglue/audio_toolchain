@@ -14,8 +14,10 @@ VERBOSE=false
 function usage
 {
   echo "$scriptname   use polyphone to convert .sf2 files to _sfz directories"
+  echo "              output result to current . directory."
   echo "Usage: "
   echo "  $scriptname <in1...inN>   (in files: e.g. ./drumkit.sf2)"
+  echo "  $scriptname <in_dir>      (in dirs:  e.g. ./samples_sf2, recurse and find all sf2 files)"
   echo "  $scriptname --help        (this help)"
   echo "  $scriptname --verbose     (output verbose information)"
   echo ""
