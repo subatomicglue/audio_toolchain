@@ -318,6 +318,35 @@ function sox_convert_to_mp4
         echo "$CMD"
         echo "==============================================="
         eval "$CMD"
+      elif [ "DAT" == `filepath_ext "$file"` ]; then
+        local IS_264=`ffprobe "$file" 2>&1 | grep Video | grep libx264`
+        local IS_mpeg1=`ffprobe "$file" 2>&1 | grep Video | grep mpeg1`
+        local IS_MP3=`ffprobe "$file" 2>&1 | grep Audio | grep mp3`
+        local IS_ACC=`ffprobe "$file" 2>&1 | grep Audio | grep acc`
+        echo "Using DAT (video + audio) conversion"
+        echo "--------------------------------"
+        #echo "IS_264 $IS_264"
+        #echo "IS_mpeg $IS_mpeg"
+        #echo "IS_MP3 $ISIS_MP3_264"
+        #echo "IS_ACC $IS_ACC"
+        local AUDIO="-c:a aac -b:a 128k" # convert existing sudio to AAC format
+        if [[ "${IS_MP3}" != "" ]] || [[ "${IS_ACC}" != "" ]]; then
+          echo "!!!!!!!!!!!!!!!    DETECTED A GOOD AUDIO FMT, COPYING  !!!!!!!!!!!!!!!!!"
+          AUDIO="-c:a copy"  # copy audio formats directly in
+        fi
+        if [[ "${IS_264}" != "" ]]; then
+          echo "!!!!!!!!!!!!!!!    DETECTED A GOOD VIDEO FMT, COPYING  !!!!!!!!!!!!!!!!!"
+          FMT="-c:v copy"  # copy video format directly in
+        fi
+        local CMD="ffmpeg -i \"$file\" -fflags +genpts $AUDIO $FMT \"./$FILENAME.mp4\""   # brew install ffmpeg
+        echo "$CMD"
+        echo "==============================================="
+        eval "$CMD"
+
+        CMD="ffmpeg -i \"$file\" -c:a copy -c:v copy \"./$FILENAME.dat.mp4\""   # brew install ffmpeg
+        echo "$CMD"
+        echo "==============================================="
+        eval "$CMD"
       else
         echo "Not in wav format:  \"$file\"  (use sox_convert_to_wav first)"
       fi
@@ -504,4 +533,38 @@ function ffmpeg_upscale {
 }
 alias mp4_upscale=ffmpeg_upscale
 alias m4v_upscale=ffmpeg_upscale
+
+function ffmpeg_portrait_to_landscape {
+  if [[ "$#" -lt 1 ]]; then
+    echo "Upscale any portrait mode video to letterbox 16:9 (using black sides)"
+    echo "  ffmpeg_upscale video.mp4 # will output to ./video-landscape.mp4"
+    echo "  ffmpeg_upscale video_portrait.mp4 video_letterbox.mp4"
+    echo ""
+    return
+  fi
+  local in="$1"
+  local out="./$(filepath_name "$in")-landscape.$(filepath_ext "$in")"
+  if [[ "$#" -ge 2 ]]; then
+    out="$2"
+  fi
+  ffmpeg -i "${in}" -vf "scale=iw*sar:ih,setsar=1,pad=ih*16/9:ih:(ow-iw)/2:0" "${out}"
+}
+
+function ffmpeg_portrait_to_landscape_echo_pillarbox {
+  if [[ "$#" -lt 1 ]]; then
+    echo "Upscale any portrait mode video to letterbox 16:9 (using echo pillarbox)"
+    echo "  ffmpeg_upscale video.mp4    # will output to ./video-echo-pillarbox.mp4"
+    echo "  ffmpeg_upscale video_portrait.mp4 video_echo-pillarbox.mp4"
+    echo ""
+    return
+  fi
+  local in="$1"
+  local out="./$(basename -- "$in")-echo-pillarbox.$(filepath_ext "$in")"
+  if [[ "$#" -ge 2 ]]; then
+    out="$2"
+  fi
+  ffmpeg -i "${in}" \
+  -vf 'split[original][copy];[copy]scale=ih*16/9:-1,crop=h=iw*9/16,gblur=sigma=20[blurred];[blurred][original]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2' \
+  "${out}"
+}
 
