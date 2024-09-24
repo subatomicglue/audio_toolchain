@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 let fs = require( "fs" );
+let path = require( "path" );
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
@@ -132,20 +133,25 @@ cutoff=19913
   for (let p of note_sample_pairs) {
     let vel_type = ""; // we detect the type of velocity in the sample set (mixing db and lvl wont work)
     let note = p.note;
-    let sampleset_path = p.samp;
-    let sampleset_path_rel = outpath + '/' + p.samp; // relative to the script dir (may be different)
-    let sampleset_name = p.samp.replace( /\/$/, '' ).match( /([^/]+)$/ )[1];
+    // if handed a dir, we'll map all velocity samples in that dir to the note
+    // if handed a file, we'll map to the note
+    let dir_given = fs.existsSync(p.samp) && fs.lstatSync(p.samp).isDirectory();
+    let sampleset_path = dir_given ? p.samp : path.dirname( p.samp );
+    let sampleset_path_rel = outpath + '/' + sampleset_path; // relative to the script dir (may be different)
+    let sampleset_name = path.basename( p.samp )
     console.log( `note: ${note} sampleset_path: "${sampleset_path}" sampleset_name: "${sampleset_name}"` );
-    console.log( "- Loading Sample Names" );
-    let sample_files = fs.readdirSync( sampleset_path_rel );
+    console.log( `- Loading Sample Names` );
+    let sample_files = dir_given ? fs.readdirSync( sampleset_path_rel ) : [`${sampleset_name}`];
     let sampleset = [];
     for (let f of sample_files) {
-      let vel  = f.match( /\s([-.0-9]+)(d?b?)\.[^.]+$/ )[1] ? f.match( /\s([-.0-9]+)(d?b?)\.[^.]+$/ )[1] : "1.0";
-      vel_type = f.match( /\s([-.0-9]+)(d?b?)\.[^.]+$/ )[2] ? "db" : f.match( /\s([-0-9]+)\.([0-9]+)\.[^.]+$/ )[2] ? "lvl" : "n/a";
-      let velFlt = parseFloat( vel );
+      let db_matches = f.match( /\s([-.0-9]+)(d?b?)\.[^.]+$/ );
+      let lvl_matches = f.match( /\s([-0-9]+\.[0-9]+)\.[^.]+$/ );
+      let vel  = db_matches ? db_matches[1] : lvl_matches ? lvl_matches[1] : "1.0";
+      vel_type = db_matches ? "db" : lvl_matches ? "lvl" : "n/a";
+      let velFlt = vel_type == "n/a" ? 1.0 : parseFloat( vel );
       let samps = 0;
       try {
-        const { stdout, stderr } = await exec( `${scriptdir}/samples.sh --nocr "${sampleset_path_rel}/${f}"` );
+        const { stdout, stderr } = await exec( `${scriptdir}/samples.sh --nocr "${sampleset_path_rel + "/" + f}"` );
         samps = parseInt( stdout );
       } catch (err) {
         console.log( err );
@@ -166,9 +172,14 @@ cutoff=19913
     let hi = sampleset[sampleset.length-1].sample_vel;
     for (let s of sampleset) {
       let old = s.sample_vel;
-      s.sample_vel = (s.sample_vel-lo) * (1-lo)/(hi-lo) + lo // scale [lo..hi] to [lo..1]  (preserve existing lo, hi becomes 1)
-      //s.sample_vel = (s.sample_vel-lo) / (hi-lo)             // scale [lo..hi] to [0..1]   (existing lo becomes 0, hi becomes 1)
-      s.vel = Math.floor( s.sample_vel * 127 );
+      if (lo == hi) {
+        s.sample_vel = 1;
+        s.vel = 127;
+      } else {
+        s.sample_vel = (s.sample_vel-lo) * (1-lo)/(hi-lo) + lo // scale [lo..hi] to [lo..1]  (preserve existing lo, hi becomes 1)
+        //s.sample_vel = (s.sample_vel-lo) / (hi-lo)             // scale [lo..hi] to [0..1]   (existing lo becomes 0, hi becomes 1)
+        s.vel = Math.floor( s.sample_vel * 127 );
+      }
       console.log( `  - normalizing: "${s.sample}" old:${padf( old, 1, 6 )} new:${padf( s.sample_vel, 1, 6 )} vel:${s.vel}` );
     }
 
