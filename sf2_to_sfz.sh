@@ -61,7 +61,7 @@ function do_conversion {
   local infile="$1"
   local base_dir="$2"
   #outfile="./$(echo "$(filepath_path "$infile")/$(filepath_name "$infile")" | sed "s/^$base_dir//")_sfz"
-  local outfile=".$(filepath_path "${infile#$base_dir}")/$(filepath_name "${infile#$base_dir}")_sfz"
+  local outfile="./$(filepath_path "${infile#$base_dir}")/$(filepath_name "${infile#$base_dir}")_sfz"
   #echo "splitting=========================================================="
   #echo "in:   \"$infile\""
   #echo "base: \"$base_dir\""
