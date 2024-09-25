@@ -3,29 +3,62 @@
 # PLEASE CONFIGURE:  where's the AUDIO TOOLCHAIN ?
 PATH_TO_AUDIO_TOOLCHAIN="$(pwd)/.."
 PATH="${PATH_TO_AUDIO_TOOLCHAIN}":"$PATH"
-
+BANK_NAME="drumkit"
 
 #-----------------------------------------------------------------------
 VERBOSE=false # for debugging (set to true or false)
 TEMPDIR="__intermediate"  # careful, UNIQUE name only, choose name wisely, we'll rm -rf it later
 IN_DIR=src        # below we'll use  IN_DIR for the processing pipeline
+IN_TYPE=aif
 OUT_DIR="$IN_DIR" # below we'll use OUT_DIR for the processing pipeline
-rm -rf $TEMPDIR   # clean out the tempdir
+rm -rf "$TEMPDIR"   # clean out the tempdir
+mkdir -p "$TEMPDIR"
+
+# utilty for renaming split files...
+# usage:
+# SUB_DIR="D-celtic-handpan"
+# notemap=("001" "D3" \
+#   "002" "A4" \
+#   "003" "C4" \
+#   "004" "D4" \
+#   "005" "E4" \
+#   "006" "F4" \
+#   "007" "G4" \
+#   "008" "A5" \
+#   "009" "C5" )
+#
+# rename_remap "$SUB_DIR" "${notemap[@]}"
+function rename_remap() {
+  local SUB_DIR="$1"
+  shift
+  local NOTEMAP=("$@")
+  local NOTEMAP_COUNT=${#NOTEMAP[@]}
+  local i=0;
+
+  mkdir -p $TEMPDIR/$OUT_DIR/$SUB_DIR
+  for (( i = 0; i < ${NOTEMAP_COUNT}; i += 2 )); do
+    notemap_a="${notemap[i + 0]}"
+    notemap_b="${notemap[i + 1]}"
+    paddy=`printf "%03d" $((1 + i/2))`
+    cp  "$TEMPDIR/$IN_DIR/$SUB_DIR/$SUB_DIR - $notemap_a.wav" "$TEMPDIR/$OUT_DIR/$SUB_DIR/$SUB_DIR-$notemap_b.wav"
+  done
+}
 
 # just a test...
 #./slice.sh src/SD.aif autosliced
 #./rename.sh autosliced/src/*/*.wav
-#bash -c "./sfz.js $(echo $(tr '\n' ' ' < drumkit.def)) drumkit.sfz"
+#bash -c "./sfz.js $(echo $(tr '\n' ' ' < $BANK_NAME.def)) $BANK_NAME.sfz"
 #exit -1
 
-# we recorded using a monophonic mic... just throw out the right channel...
+# if we record with a single mic, can throw out the other channel
 IN_DIR=$OUT_DIR; OUT_DIR=1src_mono
-mono.sh --destdir $TEMPDIR/$OUT_DIR --mix left $IN_DIR/*aif
+mono.sh --destdir $TEMPDIR/$OUT_DIR --mix left $IN_DIR/*.$IN_TYPE
+#mkdir -p $TEMPDIR/$OUT_DIR && cp -r $IN_DIR/* $TEMPDIR/$OUT_DIR/   # DO NOTHING - use this instead, when commenting out previous line
 $VERBOSE && read -p "Press any key..."
 
 # auto slice the source wavs which contain instrument samples separated by silence
 IN_DIR=$OUT_DIR; OUT_DIR=2autosliced
-slice.sh --destdir $TEMPDIR/$OUT_DIR --thresh 0.1 $TEMPDIR/$IN_DIR/*.aif
+slice.sh --destdir $TEMPDIR/$OUT_DIR --thresh 0.1 $TEMPDIR/$IN_DIR/*.$IN_TYPE
 $VERBOSE && read -p "Press any key..."
 
 # rename sample files by their velocity
@@ -41,29 +74,29 @@ $VERBOSE && read -p "Press any key..."
 # create a sampler instrument from the set of samples
 # (suck in the .def file, which is just a bash command line, collapse newlines)
 IN_DIR=$OUT_DIR; OUT_DIR=.
-bash -c "sfz.js --prefix $IN_DIR $(echo $(tr '\n' ' ' < drumkit.def)) $TEMPDIR/$OUT_DIR/drumkit.sfz"
+bash -c "sfz.js --prefix $IN_DIR $(echo $(tr '\n' ' ' < $BANK_NAME.def)) $TEMPDIR/$OUT_DIR/$BANK_NAME.sfz"
 $VERBOSE && read -p "Press any key..."
 
 # convert sfz instrument to sf2 file
 IN_DIR=$OUT_DIR; OUT_DIR=.
-rm -f $OUT_DIR/drumkit.sf2
-sfz_to_sf2.sh $TEMPDIR/$IN_DIR/drumkit.sfz
+rm -f $OUT_DIR/$BANK_NAME.sf2
+sfz_to_sf2.sh $TEMPDIR/$IN_DIR/$BANK_NAME.sfz
 $VERBOSE && read -p "Press any key..."
 
 # convert sf2 instrument to sfz directory (bundles all samples together)
 # TODO: maybe want to bundle the original .wavs in case there is loss of quality?
 #       YEP: we lose SFZ's lorand and hirand in SF2... TODO: change this
 IN_DIR=$OUT_DIR; OUT_DIR=.
-rm -rf $TEMPDIR/$OUT_DIR/drumkit_sfz
-sf2_to_sfz.sh $TEMPDIR/$IN_DIR/drumkit.sf2
+rm -rf $TEMPDIR/$OUT_DIR/${BANK_NAME}_sfz
+sf2_to_sfz.sh $TEMPDIR/$IN_DIR/$BANK_NAME.sf2
 $VERBOSE && read -p "Press any key..."
 
 # results!  collect them
-rm -f ./drumkit.sf2
-rm -rf ./drumkit_sfz
-cp $TEMPDIR/$IN_DIR/drumkit.sf2 .
-cp -r $TEMPDIR/$IN_DIR/drumkit_sfz .
-zip -r drumkit_sfz.zip "drumkit_sfz"
+rm -f ./$BANK_NAME.sf2
+rm -rf ./${BANK_NAME}_sfz
+cp $TEMPDIR/$IN_DIR/$BANK_NAME.sf2 .
+cp -r $TEMPDIR/$IN_DIR/${BANK_NAME}_sfz .
+zip -r ${BANK_NAME}_sfz.zip "${BANK_NAME}_sfz"
 
 # clean up, leave no evidence
 rm -rf $TEMPDIR
