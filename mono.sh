@@ -73,6 +73,10 @@ rm -fr "./$dest_dir"
 mkdir -p "./$dest_dir"
 
 for f in "${wavs[@]}"; do
+  if [ ! -f "$f" ]; then
+    echo "$0: \"$f\" not found"
+    continue
+  fi
   f_new=`echo "$f" | sed -E "s/(- [.0-9]+)?(\.[^.]+)$/\2/g"`
   outfileext=`echo "$f_new" | sed -E "s/^.*\/[^/]+(\.[^.]+)$/\1/g"`
   outfilename=`echo "$f_new" | sed -E "s/^.*\/([^/]+)\.[^.]+$/\1/g"`
