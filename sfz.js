@@ -135,9 +135,10 @@ cutoff=19913
     let note = p.note;
     // if handed a dir, we'll map all velocity samples in that dir to the note
     // if handed a file, we'll map to the note
-    let dir_given = fs.existsSync(p.samp) && fs.lstatSync(p.samp).isDirectory();
-    let sampleset_path = dir_given ? p.samp : path.dirname( p.samp );
-    let sampleset_path_rel = outpath + '/' + sampleset_path; // relative to the script dir (may be different)
+    let sampleset_path_rel = outpath + '/' + p.samp;  // relative to the script dir (may be different)
+    let dir_given = fs.existsSync(sampleset_path_rel) && fs.lstatSync(sampleset_path_rel).isDirectory();
+    let sampleset_path = dir_given ? p.samp : path.dirname( p.samp );  // dir (sets) or file (single sample)
+    sampleset_path_rel = outpath + '/' + sampleset_path; // relative to the script dir (may be different) - fixup: dir (sets) or file (single sample)
     let sampleset_name = path.basename( p.samp )
     console.log( `note: ${note} sampleset_path: "${sampleset_path}" sampleset_name: "${sampleset_name}"` );
     console.log( `- Loading Sample Names` );
@@ -151,6 +152,7 @@ cutoff=19913
       let velFlt = vel_type == "n/a" ? 1.0 : parseFloat( vel );
       let samps = 0;
       try {
+        console.log( sampleset_path_rel, "----", f );
         const { stdout, stderr } = await exec( `${scriptdir}/samples.sh --nocr "${sampleset_path_rel + "/" + f}"` );
         samps = parseInt( stdout );
       } catch (err) {
