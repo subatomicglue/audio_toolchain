@@ -15,7 +15,9 @@ let cwd=process.cwd()
 let note = 0;
 let samp = "";
 let prefix = "";
-let wavs = [];
+let increment=false;
+let package=false;
+let args = [];
 let note_sample_pairs = []; // [ {note: 63,samp: "BD"}, {note: 64, samp: "SD"}, ... ]
 let VERBOSE=false;
 
@@ -25,12 +27,15 @@ function usage()
 {
   console.log( `${scriptname} - command line script to create a .sfz sampler instrument bank` );
   console.log( `Usage:
-   ${scriptname} <out>         (output file:  bank.sfz)
    ${scriptname} --help        (this help)
    ${scriptname} --verbose     (output verbose information)
-   ${scriptname} --note        (note to map to: e.g. 36)
+   ${scriptname} --inc         (auto increment note for each sample, use --note to set start, use --noinc to stop)
+   ${scriptname} --note        (note to map to: e.g. 36; paired with --inc sets the start note)
    ${scriptname} --samp        (sample prefix to map to: e.g. ./BD/BD)
    ${scriptname} --prefix      (prefix string to prepend to sample path: default '${prefix}/')
+   ${scriptname} --package     (create <dirname>_sfz/ containing <dirname>.sfz and samples/ )
+   ${scriptname} <in>          (input file(s):   sampleN.wav)
+   ${scriptname} <out>         (output file:     bank.sfz)
   ` );
 }
 let ARGC = process.argv.length-2; // 1st 2 are node and script name...
@@ -47,6 +52,18 @@ for (let i = 2; i < (ARGC+2); i++) {
     VERBOSE=true
     continue
   }
+  if (ARGV[i] == "--inc") {
+    increment=true
+    continue
+  }
+  if (ARGV[i] == "--noinc") {
+    increment=false
+    continue
+  }
+  if (ARGV[i] == "--package") {
+    package=true
+    continue
+  }
   if (ARGV[i] == "--note") {
     i+=1;
     note=ARGV[i]
@@ -59,6 +76,8 @@ for (let i = 2; i < (ARGC+2); i++) {
     if (prefix != '') samp = prefix + "/" + samp; // prepend prefix
     VERBOSE && console.log( `Parsing Args: Sample ${samp}` )
     note_sample_pairs.push( { note: note, samp: samp } ); // log the note/samp pair
+    if (increment)
+      ++note
     continue
   }
   if (ARGV[i] == "--prefix") {
@@ -73,7 +92,7 @@ for (let i = 2; i < (ARGC+2); i++) {
     process.exit(-1)
   }
 
-  wavs.push( ARGV[i] )
+  args.push( ARGV[i] )
   VERBOSE && console.log( `Parsing Args: argument #${non_flag_args}: \"${ARGV[i]}\"` )
   non_flag_args += 1
 }
@@ -86,6 +105,19 @@ if (non_flag_args_required != 0 && (ARGC == 0 || !(non_flag_args >= non_flag_arg
 }
 //////////////////////////////////////////
 
+if (args.length < 1)
+  process.exit( -1 );
+
+// input files
+for (let infile of args.slice(0, args.length-1)) {
+  if (prefix != '') infile = prefix + "/" + infile; // prepend prefix
+  note_sample_pairs.push( { note: note, samp: infile } ); // log the note/samp pair
+  if (increment)
+    ++note
+}
+
+// output file
+let outfile=args[args.length-1];
 
 function pad( s, size ) {
   s = String( s );
@@ -100,19 +132,24 @@ function padf( s, size, size_dec ) {
 }
 
 async function go() {
-  console.log( `process args: ${ARGC}  ${ARGV}` );
-  outfile = wavs[0];
+  //console.log( `process args: ${ARGC}  ${ARGV}` );
+  //outfile = args[0];
   outpath = outfile.replace( /\/*[^/]+$/, '' )
-
-  filename = outfile.replace( /^.*\/([^/]+)\.[^.]+$/g, "$1" )
+  outname = path.parse( outfile ).name;
   outpath = outfile.replace( /([^/]+)$/g, "" ).replace( /\/$/g, "" );
+  if (package) {
+    outpath = path.join( outpath, `${outname}_sfz` );
+    outfile = path.join( outpath, outname ) + ".sfz"
+  }
   if (outpath != "" && outpath != "." && outpath != "./")
     fs.mkdirSync( outpath, { recursive: true } );
-  console.log( `Creating:  \"${outfile}\" filename:${filename}` );
+
+  console.log( "" );
+  console.log( `[${scriptname}] Creating:  \"${outfile}\" filename:${outname}` );
   let data = `
 // Sfz created with sfz.js
-// Name      : ${filename}
-// Author    : sfz.sh (kevin)
+// Name      : ${outname}
+// Author    : sfz.js (kevin)
 // Copyright : (c) today
 // Date      : 2020/12/01
 // Comment   : auto generated
@@ -135,41 +172,60 @@ cutoff=19913
     let note = p.note;
     // if handed a dir, we'll map all velocity samples in that dir to the note
     // if handed a file, we'll map to the note
-    let sampleset_path_rel = outpath + '/' + p.samp;  // relative to the script dir (may be different)
-    let dir_given = fs.existsSync(sampleset_path_rel) && fs.lstatSync(sampleset_path_rel).isDirectory();
+    let dir_given = fs.existsSync(p.samp) && fs.lstatSync(p.samp).isDirectory();
     let sampleset_path = dir_given ? p.samp : path.dirname( p.samp );  // dir (sets) or file (single sample)
-    sampleset_path_rel = outpath + '/' + sampleset_path; // relative to the script dir (may be different) - fixup: dir (sets) or file (single sample)
+    let outpath_re = new RegExp( `^${outpath.replace(/\//,"\\/")}[/]?` );
+    let sampleset_path_rel_to_sfz = package ? "samples" : sampleset_path.replace( outpath_re, "" );
     let sampleset_name = path.basename( p.samp )
-    console.log( `note: ${note} sampleset_path: "${sampleset_path}" sampleset_name: "${sampleset_name}"` );
-    console.log( `- Loading Sample Names` );
-    let sample_files = dir_given ? fs.readdirSync( sampleset_path_rel ) : [`${sampleset_name}`];
+    console.log( `- Note: ${note}   sampleset_path: "${sampleset_path}" sampleset_name: "${sampleset_name}"` );
+    console.log( `  - Loading Sample Names` );
+    let sample_files = dir_given ? fs.readdirSync( sampleset_path ) : [`${sampleset_name}`];
     let sampleset = [];
     for (let f of sample_files) {
-      let db_matches = f.match( /\s([-.0-9]+)(d?b?)\.[^.]+$/ );
-      let lvl_matches = f.match( /\s([-0-9]+\.[0-9]+)\.[^.]+$/ );
+      console.log( "    - sample ", `"${f}"` );
+      let db_matches = f.match( /\s+([-.0-9]+)(d?b?)\.[^.]+$/ );
+      let lvl_matches = f.match( /\s+([-0-9]+\.[0-9]+)\.[^.]+$/ );
+      if (sample_files.length > 1 && lvl_matches == null && db_matches == null) {
+        console.log( `      ERROR: many sample files given for note ${note}, however, no velocity for the sample file, expected naming: "<samplename> <0-1 velocity>.wav"` )
+        console.log( `             no way to map these, aborting - please fix`)
+        process.exit( -1 );
+      }
       let vel  = db_matches ? db_matches[1] : lvl_matches ? lvl_matches[1] : "1.0";
       vel_type = db_matches ? "db" : lvl_matches ? "lvl" : "n/a";
       let velFlt = vel_type == "n/a" ? 1.0 : parseFloat( vel );
+      // the source sample path
+      let infile = path.join( sampleset_path, f );
+      // the sample path to write into .sfz file:
+      let infile_rel = path.join( sampleset_path_rel_to_sfz, f );
+      if (package) {
+        fs.mkdirSync( path.join( outpath, "samples" ), { recursive: true } );
+        fs.copyFileSync( path.join( sampleset_path, f ), path.join( outpath, "samples", f ) )
+      }
+      if (!fs.existsSync( infile )) {
+        console.log( `      ERROR sample not found "${infile}"` );
+        process.exit( -1 );
+      }
+      // get number of samples
       let samps = 0;
       try {
-        console.log( sampleset_path_rel, "----", f );
-        const { stdout, stderr } = await exec( `${scriptdir}/samples.sh --nocr "${sampleset_path_rel + "/" + f}"` );
+        let cmd = `${scriptdir}/samples.sh --nocr "${infile}"`
+        const { stdout, stderr } = await exec( cmd );
         samps = parseInt( stdout );
       } catch (err) {
-        console.log( err );
+        console.log( `      ERROR couldn't read number of samples from "${infile}"`, err );
       }
       if (samps > 0) {
-        console.log( ` - sample: "${f}" sample_vel: ${padf( velFlt, 1, 6 )} velocity_type: "${vel_type}" samps:${samps}` );
-        sampleset.push( { lokey: p.note, hikey: p.note, sample: f, sample_fullname: sampleset_path + "/" + f, sample_vel: velFlt,  samps: samps } );
+        console.log( `   - sample: "${f}" sample_vel: ${padf( velFlt, 1, 6 )} velocity_type: "${vel_type}" samps:${samps}` );
+        sampleset.push( { lokey: p.note, hikey: p.note, sample: f, sample_fullname: infile_rel, sample_vel: velFlt,  samps: samps } );
       } else {
-        console.log( ` - SKIPPING "${f}", 0 samples` );
+        console.log( `   - SKIPPING "${f}", 0 samples` );
       }
     }
 
-    console.log( "- Sorting by velocity" );
+    console.log( "  - Sorting by velocity" );
     sampleset = sampleset.sort( (a,b) => a.sample_vel - b.sample_vel ); // ascending 0 to 1
 
-    console.log( "- Normalizing Vel" );
+    console.log( "  - Normalizing Vel" );
     let lo = sampleset[0].sample_vel;
     let hi = sampleset[sampleset.length-1].sample_vel;
     for (let s of sampleset) {
@@ -182,22 +238,25 @@ cutoff=19913
         //s.sample_vel = (s.sample_vel-lo) / (hi-lo)             // scale [lo..hi] to [0..1]   (existing lo becomes 0, hi becomes 1)
         s.vel = Math.floor( s.sample_vel * 127 );
       }
-      console.log( `  - normalizing: "${s.sample}" old:${padf( old, 1, 6 )} new:${padf( s.sample_vel, 1, 6 )} vel:${s.vel}` );
+      console.log( `    - normalizing: "${s.sample}" old:${padf( old, 1, 6 )} new:${padf( s.sample_vel, 1, 6 )} vel:${s.vel}` );
     }
 
-    console.log( "- Filling in Vel Ranges" );
+    console.log( "  - Filling in Vel Ranges" );
     for (let i = 0; i < sampleset.length; ++i) {
       let s = sampleset[i];
       s.lovel = i == 0 ? 0 : sampleset[i-1].vel+1;
       s.hivel = i == (sampleset.length-1) ? 127 : s.vel;
-      console.log( `  - sample: "${s.sample}" sample_vel: ${padf( s.sample_vel, 1, 6 )} lokey:${pad(s.lokey, 3)} hikey:${pad(s.hikey, 3)} lovel:${pad( s.lovel, 3 )} hivel:${pad( s.hivel, 3 )}` );
+      s.lorand = 0.0; // todo:  add a variability feature in the future... here.
+      s.hirand = 1.0;
+      console.log( `    - sample: "${s.sample}" sample_vel: ${padf( s.sample_vel, 1, 6 )} lokey:${pad(s.lokey, 3)} hikey:${pad(s.hikey, 3)} lovel:${pad( s.lovel, 3 )} hivel:${pad( s.hivel, 3 )}` );
     }
 
     for (let s of sampleset) {
-      console.log( `- Writing Sample: samp:"${s.sample_fullname}" key:${pad(s.lokey, 3)}-${pad(s.hikey, 3)} vel:${pad(s.lovel,3)}-${pad(s.hivel,3)}` );
+      console.log( `  - Writing Sample: samp:"${s.sample_fullname}" key:${pad(s.lokey, 3)}-${pad(s.hikey, 3)} vel:${pad(s.lovel,3)}-${pad(s.hivel,3)}` );
       data += `<region>
 sample=${s.sample_fullname.replace( /\//g, "\\")}
 lokey=${s.lokey} hikey=${s.hikey}
+lorand=${s.lorand} hirand=${s.hirand}
 pitch_keycenter=${s.lokey}
 lovel=${s.lovel} hivel=${s.hivel}
 fil_type=lpf_2p

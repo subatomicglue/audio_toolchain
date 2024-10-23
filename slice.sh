@@ -114,7 +114,7 @@ for infile in "${infiles[@]}"; do
   mkdir -p "./$outpath/$filename"
 
   outfile="./$outpath/$filename/$filename - .wav"
-  echo "Slicing:  \"$infile\" => \"$outfile\" "
+  echo "Slice  \"$infile\" => \"$outfile\" "
   sox "$infile" "$outfile" silence 1 0.1 $thresh% 1 0.1 $thresh% : newfile : restart
 done
 

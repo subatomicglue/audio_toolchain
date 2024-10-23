@@ -19,6 +19,9 @@ VERBOSE=false
 function usage
 {
   echo "$scriptname rename audio files by their peak level.  useful for individual instrument samples."
+  echo "Example: "
+  echo "  $scriptname --destdir out --type lvl \"myfile - 001.wav\"   # outputs \"myfile - 0.521.wav\""
+  echo ""
   echo "Usage: "
   echo "  $scriptname <wav files>   (list of wav files to rename, copying to '$dest_dir/')"
   echo "  $scriptname --help        (this help)"
@@ -91,8 +94,12 @@ if [ $non_flag_args_required -ne 0 ] && [[ $ARGC -eq 0 || ! $ARGC -ge $non_flag_
 fi
 ################################
 
-rm -fr "./$dest_dir"
+#rm -fr "./$dest_dir"
 mkdir -p "./$dest_dir"
+
+function filepath_path { local file=$1; echo `dirname -- "${file}"`; }
+function filepath_name { local file=$1; echo `basename -- "${file%.*}"`; }
+function filepath_ext { local file=$1; echo "${file##*.}"; }
 
 for f in "${wavs[@]}"; do
   if [ $type == "db" ]; then
@@ -103,9 +110,9 @@ for f in "${wavs[@]}"; do
     value=`${scriptdir}/max_lvl.sh --nocr --start "$start_in_seconds" --duration "$duration_in_seconds" "$f"`
   fi
 
-  f_new=`echo "$f" | sed -E "s/(- [.0-9]+)?(\.[^.]+)$/${value}\2/g"`
-  outfileext=`echo "$f_new" | sed -E "s/^.*\/[^/]+(\.[^.]+)$/\1/g"`
-  outfilename=`echo "$f_new" | sed -E "s/^.*\/([^/]+)\.[^.]+$/\1/g"`
+  f_new=`echo "$f" | sed -E "s/(\s+-\s+[.0-9]+)?(\.[^.]+)$/ ${value}\2/g"` # rename with peak level
+  outfileext=".$(filepath_ext "${f_new}")"
+  outfilename="$(filepath_name "${f_new}")"
 
   #outpath=`echo "$f_new" | sed -E "s/([^/]+)$//g" | sed -E "s/\/$//g"` # use all of infile's path ("src/SD/SD.wav" to "src/SD")
   outpath=`echo "$f_new" | sed -E "s/([^/]+)$//g" | sed -E "s/\/$//g" | sed -E "s/^.*\///g"` # use infile's parent dirname only ("src/SD/SD.wav" to "SD")
@@ -116,7 +123,7 @@ for f in "${wavs[@]}"; do
     outpath="."
   fi
 
-  echo "$f -> $dest_dir/$outpath/$outfilename$outfileext"
+  echo "Rename ($type) $f -> $dest_dir/$outpath/$outfilename$outfileext"
   mkdir -p "./$dest_dir/$outpath"
   cp "$f" "./$dest_dir/$outpath/$outfilename$outfileext"
 done

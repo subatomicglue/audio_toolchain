@@ -41,7 +41,7 @@ for ((i = 0; i < ARGC; i++)); do
   fi
 
   args+=("${ARGV[$i]}")
-  $VERBOSE && echo "Parsing Args: Audio: \"${ARGV[$i]}\""
+  $VERBOSE && echo "Parsing Args: \"${ARGV[$i]}\""
   ((non_flag_args+=1))
 done
 
@@ -60,46 +60,27 @@ function filepath_ext { local file=$1; echo "${file##*.}"; }
 function do_conversion {
   local infile="$1"
   local base_dir="$2"
-  #outfile="./$(echo "$(filepath_path "$infile")/$(filepath_name "$infile")" | sed "s/^$base_dir//")_sfz"
-  local outfile="./$(filepath_path "${infile#$base_dir}")/$(filepath_name "${infile#$base_dir}")_sfz"
-  #echo "splitting=========================================================="
-  #echo "in:   \"$infile\""
-  #echo "base: \"$base_dir\""
-  #echo "   -> \"$outfile\""
-  #echo "hello \"$infile\" to \"$outfile\""
-  #exit -1
+  local outfile="$base_dir/$(filepath_name "${infile}")_sfz"
 
   if [ ! -d "$outfile" ]; then
-    echo "==================================================="
+    echo "======================================================================"
     echo "Converting \"$infile\" to \"$outfile\" (thanks polyphone!)"
     mkdir -p "$(filepath_path "${outfile}")"
     /Applications/polyphone-2.2.app/Contents/MacOS/polyphone -3 -i "$infile" -d . -o "${outfile}"
   else
-    #infile_date=$(date -r "${infile}" "+%Y%m%d_%H_%M_%S")
-    #outfile_date=$(date -r "${outfile}" "+%Y%m%d_%H_%M_%S")
-    #if [ "${infile_date}" != "${outfile_date}" ]; then
-    #  echo "Skipping, but Timestamps differ! \"$infile\" to \"$outfile\" (exists)"
-    #else
-      echo "Skipping \"$infile\" to \"$outfile\" (exists)"
-    #fi
+    echo "Skipping \"$infile\" to \"$outfile\" (exists)"
   fi
 }
 
-
-function go {
-  for arg in "${args[@]}"; do
-    local infile="$arg"
-    if [ -d "$infile" ]; then
-      echo "recursing into $infile"
-      find "$infile" -type f -name "*.sf2" | while read f; do
-        do_conversion "$f" "$infile"
-      done
-    elif [ -f "$infile" ]; then
-      do_conversion "$infile" $(pwd)
-    fi
-
-  done;
-}
-
-go
+for arg in "${args[@]}"; do
+  infile="$arg"
+  if [ -d "$infile" ]; then
+    echo "[$scriptname] recursing into directory: \"$infile\""
+    find "$infile" -type f -name "*.sf2" | while read f; do
+      do_conversion "$f" "$infile"
+    done
+  elif [ -f "$infile" ]; then
+    do_conversion "$infile" "$(filepath_path "${infile}")"
+  fi
+done;
 
