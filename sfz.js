@@ -188,6 +188,7 @@ cutoff=19913
       if (sample_files.length > 1 && lvl_matches == null && db_matches == null) {
         console.log( `      ERROR: many sample files given for note ${note}, however, no velocity for the sample file, expected naming: "<samplename> <0-1 velocity>.wav"` )
         console.log( `             no way to map these, aborting - please fix`)
+        console.log( `      TODO:  we'll want to implement lorand/hirand randomization in this case`)
         process.exit( -1 );
       }
       let vel  = db_matches ? db_matches[1] : lvl_matches ? lvl_matches[1] : "1.0";
@@ -202,7 +203,7 @@ cutoff=19913
         fs.copyFileSync( path.join( sampleset_path, f ), path.join( outpath, "samples", f ) )
       }
       if (!fs.existsSync( infile )) {
-        console.log( `      ERROR sample not found "${infile}"` );
+        console.log( `        ERROR sample not found "${infile}"` );
         process.exit( -1 );
       }
       // get number of samples
@@ -212,13 +213,13 @@ cutoff=19913
         const { stdout, stderr } = await exec( cmd );
         samps = parseInt( stdout );
       } catch (err) {
-        console.log( `      ERROR couldn't read number of samples from "${infile}"`, err );
+        console.log( `        ERROR couldn't read number of samples from "${infile}"`, err );
       }
       if (samps > 0) {
-        console.log( `   - sample: "${f}" sample_vel: ${padf( velFlt, 1, 6 )} velocity_type: "${vel_type}" samps:${samps}` );
+        console.log( `      - sample_vel: ${padf( velFlt, 1, 6 )} velocity_type: "${vel_type}" samps:${samps}` );
         sampleset.push( { lokey: p.note, hikey: p.note, sample: f, sample_fullname: infile_rel, sample_vel: velFlt,  samps: samps } );
       } else {
-        console.log( `   - SKIPPING "${f}", 0 samples` );
+        console.log( `      - SKIPPING, 0 samples` );
       }
     }
 

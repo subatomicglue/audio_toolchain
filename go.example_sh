@@ -45,14 +45,42 @@ function rename_remap() {
     notemap_a="${notemap[i + 0]}"
     notemap_b="${notemap[i + 1]}"
     paddy=`printf "%03d" $((1 + i/2))`
-    cp  "$TEMPDIR/$IN_DIR/$SUB_DIR/$SUB_DIR - $notemap_a.wav" "$TEMPDIR/$OUT_DIR/$SUB_DIR/$SUB_DIR-$notemap_b.wav"
-    echo "rename \"$TEMPDIR/$OUT_DIR/$SUB_DIR/$SUB_DIR-$notemap_a.wav\" to \"$SUB_DIR-$notemap_b.wav\""
+    cp  "$TEMPDIR/$IN_DIR/$SUB_DIR/$SUB_DIR"*"$notemap_a.wav" "$TEMPDIR/$OUT_DIR/$SUB_DIR/$SUB_DIR-$notemap_a-$notemap_b.wav"
+    echo "rename \"$TEMPDIR/$OUT_DIR/$SUB_DIR/$SUB_DIR-$notemap_a.wav\" to \"$SUB_DIR-$notemap_a-$notemap_b.wav\""
   done
 }
 
+# convert notemap to array of filenames...
+# usage:
+# SUB_DIR="D-celtic-handpan"
+# notemap=("001" "D3" \
+#   "002" "A4" \
+#   "003" "C4" \
+#   "004" "D4" \
+#   "005" "E4" \
+#   "006" "F4" \
+#   "007" "G4" \
+#   "008" "A5" \
+#   "009" "C5" )
+#
+# # build an array of filenames, then display on stdout
+# filenames=( $(notemap_to_filenames "$SUB_DIR" "${notemap[@]}") )
+# echo $(printf "%s " "${filenames[@]}")
+function notemap_to_filenames() {
+  local SUB_DIR="$1"
+  shift
+  local notemap=("$@")
+  local NOTEMAP_COUNT=${#notemap[@]}
+
+  local file_names=( $(for (( i = 0; i < ${#notemap[@]}; i += 2 )); do echo "\"$SUB_DIR/$SUB_DIR-${notemap[$i+0]}-${notemap[$i+1]}.wav\""; done) )
+  echo "${file_names[@]}"
+}
+
 # build sample bank(s) from input wavs
+# usage:
+#    build_sampler_banks "<prefix>" "<args>" "<outname>"
 # prefix:  where the input wavs are   "common/prefix/path/to/input_wavs"
-# args:    args to pass to sfz.js   "--note 58 --inc input1.wav input2.wav input3.wav"
+# args:    args to pass to sfz.js   "--note 58 --inc \"input1.wav\" input2.wav input3.wav"
 # outname: output path and filename (without extension) "path/to/samplebank_name"
 function build_sampler_banks {
   local prefix="$1"
@@ -87,7 +115,8 @@ function build_sampler_banks {
   zip -r "${outpath}/${outname}_sfz.zip" "${outpath}/${outname}_sfz"
 }
 
-
+# ==============================================================================
+# steps:
 
 # just a test...
 #./slice.sh src/SD.aif autosliced
