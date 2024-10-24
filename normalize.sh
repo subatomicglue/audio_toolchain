@@ -77,7 +77,7 @@ function filepath_name { local file=$1; echo `basename -- "${file%.*}"`; }
 function filepath_ext { local file=$1; echo "${file##*.}"; }
 
 for f in "${wavs[@]}"; do
-  f_new=`echo "$f" | sed -E "s/(\s+-\s+[0-9]+\.[0-9]+)?(\.[^.]+)$/\2/g"`
+  f_new="$f" #`echo "$f" | sed -E "s/(\s+-\s+[0-9]+\.[0-9]+)?(\.[^.]+)$/\2/g"`
   outfileext=".$(filepath_ext "${f_new}")"
   outfilename="$(filepath_name "${f_new}")"
 

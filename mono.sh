@@ -81,7 +81,7 @@ for f in "${wavs[@]}"; do
     echo "$0: \"$f\" not found"
     continue
   fi
-  f_new=`echo "$f" | sed -E "s/(\s+-\s+[0-9]+\.[0-9]+)?(\.[^.]+)$/\2/g"`
+  f_new="$f" #`echo "$f" | sed -E "s/(\s+-\s+[0-9]+\.[0-9]+)?(\.[^.]+)$/\2/g"`
   outfileext=".$(filepath_ext "${f_new}")"
   outfilename="$(filepath_name "${f_new}")"
 
