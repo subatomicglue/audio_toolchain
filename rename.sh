@@ -110,7 +110,8 @@ for f in "${wavs[@]}"; do
     value=`${scriptdir}/max_lvl.sh --nocr --start "$start_in_seconds" --duration "$duration_in_seconds" "$f"`
   fi
 
-  f_new=`echo "$f" | sed -E "s/(\s+-\s+[.0-9]+)?(\.[^.]+)$/ ${value}\2/g"` # rename with peak level
+  #f_new=`echo "$f" | sed -E "s/(\s+-\s+)?([.0-9]+)?(\.[^.]+)$/\1\2\1${value}\3/g"` # rename with peak level
+  f_new=`echo "$f" | sed -E "s/(\s+-\s+)?([.0-9]+)?(\.[^.]+)$/\1${value}\3/g"` # rename with peak level
   outfileext=".$(filepath_ext "${f_new}")"
   outfilename="$(filepath_name "${f_new}")"
 
