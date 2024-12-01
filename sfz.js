@@ -16,6 +16,7 @@ let note = 0;
 let samp = "";
 let prefix = "";
 let increment=false;
+let minvel=0.0;
 let package=false;
 let args = [];
 let note_sample_pairs = []; // [ {note: 63,samp: "BD"}, {note: 64, samp: "SD"}, ... ]
@@ -34,6 +35,7 @@ function usage()
    ${scriptname} --samp        (sample prefix to map to: e.g. ./BD/BD)
    ${scriptname} --prefix      (prefix string to prepend to sample path: default '${prefix}/')
    ${scriptname} --package     (create <dirname>_sfz/ containing <dirname>.sfz and samples/ )
+   ${scriptname} --minvel      (default: ${minvel}; give a value 0-1)
    ${scriptname} <in>          (input file(s):   sampleN.wav)
    ${scriptname} <out>         (output file:     bank.sfz)
   ` );
@@ -78,6 +80,12 @@ for (let i = 2; i < (ARGC+2); i++) {
     note_sample_pairs.push( { note: note, samp: samp } ); // log the note/samp pair
     if (increment)
       ++note
+    continue
+  }
+  if (ARGV[i] == "--minvel") {
+    i+=1;
+    minvel=parseFloat( ARGV[i] );
+    VERBOSE && console.log( `Parsing Args: minvel ${minvel}` )
     continue
   }
   if (ARGV[i] == "--prefix") {
@@ -198,13 +206,13 @@ cutoff=19913
       let infile = path.join( sampleset_path, f );
       // the sample path to write into .sfz file:
       let infile_rel = path.join( sampleset_path_rel_to_sfz, f );
-      if (package) {
-        fs.mkdirSync( path.join( outpath, "samples" ), { recursive: true } );
-        fs.copyFileSync( path.join( sampleset_path, f ), path.join( outpath, "samples", f ) )
-      }
       if (!fs.existsSync( infile )) {
         console.log( `        ERROR sample not found "${infile}"` );
         process.exit( -1 );
+      }
+      if (package) {
+        fs.mkdirSync( path.join( outpath, "samples" ), { recursive: true } );
+        fs.copyFileSync( infile, path.join( outpath, "samples", f ) )
       }
       // get number of samples
       let samps = 0;
@@ -237,7 +245,10 @@ cutoff=19913
       } else {
         s.sample_vel = (s.sample_vel-lo) * (1-lo)/(hi-lo) + lo // scale [lo..hi] to [lo..1]  (preserve existing lo, hi becomes 1)
         //s.sample_vel = (s.sample_vel-lo) / (hi-lo)             // scale [lo..hi] to [0..1]   (existing lo becomes 0, hi becomes 1)
-        s.vel = Math.floor( s.sample_vel * 127 );
+
+        // bias (and scale) sample_vel (which is 0-1) by minvel (where: 0 keeps sample_vel the same; n raises floor of sample_vel;  1 sets sample_vel to 1)
+        //s.vel = Math.floor( s.sample_vel * 127 );
+        s.vel = Math.floor( ((s.sample_vel * (1 - minvel)) + minvel) * 127 );
       }
       console.log( `    - normalizing: "${s.sample}" old:${padf( old, 1, 6 )} new:${padf( s.sample_vel, 1, 6 )} vel:${s.vel}` );
     }
@@ -245,7 +256,7 @@ cutoff=19913
     console.log( "  - Filling in Vel Ranges" );
     for (let i = 0; i < sampleset.length; ++i) {
       let s = sampleset[i];
-      s.lovel = i == 0 ? 0 : sampleset[i-1].vel+1;
+      s.lovel = i == 0 ? 0 : Math.min( 127, sampleset[i-1].vel+1 );
       s.hivel = i == (sampleset.length-1) ? 127 : s.vel;
       s.lorand = 0.0; // todo:  add a variability feature in the future... here.
       s.hirand = 1.0;
